@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #1c1c1c; color: white; text-align: center; font-family: sans-serif; }
+        .stat { font-size: 20px; margin: 10px; color: #00ff00; }
+        #clickBtn { width: 200px; height: 200px; border-radius: 50%; border: 5px solid white; 
+                    background: url('https://via.placeholder.com/150/green/white?text=ARMY') center/cover; }
+        .rank { color: #aaa; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h2 id="userName">Рядовой</h2>
+    <div class="stat">Авторитет: <span id="score">0</span></div>
+    <div class="rank" id="rankName">Звание: Дух</div>
+    <button id="clickBtn"></button>
+    <p>Жми на кнопку, чтобы качаться!</p>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрыть на весь экран
+        
+        let score = 0;
+        const btn = document.getElementById('clickBtn');
+        const scoreDisplay = document.getElementById('score');
+
+        btn.onclick = () => {
+            score++;
+            scoreDisplay.innerText = score;
+            if (score > 50) document.getElementById('rankName').innerText = "Звание: Слон";
+            if (score > 150) document.getElementById('rankName').innerText = "Звание: Черпак";
+            tg.HapticFeedback.impactOccurred('medium'); // Вибрация при клике
+        };
+    </script>
+</body>
+</html>
