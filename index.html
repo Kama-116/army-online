@@ -37,7 +37,7 @@
     </div>
 
     <div id="character-container" onclick="handleTap()">
-        <img id="char-img" src="img/rank1.png" alt="Боец">
+        <img id="char-img" src="img/rank1.jpg" alt="Боец">
     </div>
 
     <button class="btn-tap" onclick="handleTap()">ВЫПОЛНИТЬ НАРЯД</button>
@@ -57,13 +57,13 @@
             // Логика смены званий и КАРТИНОК
             if (score < 100) {
                 rankText.innerText = "Звание: Дух";
-                rankImg.src = "img/rank1.png"; // Путь к картинке духа
+                rankImg.src = "img/rank1.jpg"; // Путь к картинке духа
             } else if (score < 500) {
                 rankText.innerText = "Звание: Слон";
-                rankImg.src = "img/rank2.png"; // Путь к картинке слона
+                rankImg.src = "img/rank2.jpg"; // Путь к картинке слона
             } else {
                 rankText.innerText = "Звание: Дембель";
-                rankImg.src = "img/rank3.png"; // Путь к картинке дембеля
+                rankImg.src = "img/rank3.jpg"; // Путь к картинке дембеля
             }
         }
 
