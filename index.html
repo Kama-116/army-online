@@ -1,37 +1,83 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #1c1c1c; color: white; text-align: center; font-family: sans-serif; }
-        .stat { font-size: 20px; margin: 10px; color: #00ff00; }
-        #clickBtn { width: 200px; height: 200px; border-radius: 50%; border: 5px solid white; 
-                    background: url('https://via.placeholder.com/150/green/white?text=ARMY') center/cover; }
-        .rank { color: #aaa; font-style: italic; }
+        body { 
+            background: #2c3e50; color: white; text-align: center; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0; padding: 20px;
+        }
+        .header { background: #1a252f; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .stat-val { color: #f1c40f; font-weight: bold; font-size: 24px; }
+        
+        /* Стили для персонажа */
+        #character-container {
+            position: relative; width: 200px; height: 250px; margin: 0 auto 20px;
+            background: #34495e; border-radius: 15px; border: 3px solid #f1c40f;
+            overflow: hidden; cursor: pointer;
+        }
+        #char-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .btn-tap {
+            background: #27ae60; color: white; border: none; padding: 15px 30px;
+            font-size: 18px; border-radius: 50px; font-weight: bold;
+            box-shadow: 0 4px #1e8449; active-transform: translateY(2px);
+        }
+        .btn-tap:active { transform: translateY(2px); box-shadow: 0 2px #1e8449; }
     </style>
 </head>
 <body>
-    <h2 id="userName">Рядовой</h2>
-    <div class="stat">Авторитет: <span id="score">0</span></div>
-    <div class="rank" id="rankName">Звание: Дух</div>
-    <button id="clickBtn"></button>
-    <p>Жми на кнопку, чтобы качаться!</p>
+
+    <div class="header">
+        <div id="rank">Звание: Рядовой (Дух)</div>
+        <div>Авторитет: <span id="score" class="stat-val">0</span></div>
+    </div>
+
+    <div id="character-container" onclick="handleTap()">
+        <img id="char-img" src="img/rank1.png" alt="Боец">
+    </div>
+
+    <button class="btn-tap" onclick="handleTap()">ВЫПОЛНИТЬ НАРЯД</button>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Раскрыть на весь экран
-        
-        let score = 0;
-        const btn = document.getElementById('clickBtn');
-        const scoreDisplay = document.getElementById('score');
+        tg.expand();
 
-        btn.onclick = () => {
-            score++;
-            scoreDisplay.innerText = score;
-            if (score > 50) document.getElementById('rankName').innerText = "Звание: Слон";
-            if (score > 150) document.getElementById('rankName').innerText = "Звание: Черпак";
-            tg.HapticFeedback.impactOccurred('medium'); // Вибрация при клике
-        };
+        // Загружаем данные из памяти при старте
+        let score = parseInt(localStorage.getItem('score')) || 0;
+        
+        function updateUI() {
+            document.getElementById('score').innerText = score;
+            let rankImg = document.getElementById('char-img');
+            let rankText = document.getElementById('rank');
+
+            // Логика смены званий и КАРТИНОК
+            if (score < 100) {
+                rankText.innerText = "Звание: Дух";
+                rankImg.src = "img/rank1.png"; // Путь к картинке духа
+            } else if (score < 500) {
+                rankText.innerText = "Звание: Слон";
+                rankImg.src = "img/rank2.png"; // Путь к картинке слона
+            } else {
+                rankText.innerText = "Звание: Дембель";
+                rankImg.src = "img/rank3.png"; // Путь к картинке дембеля
+            }
+        }
+
+        function handleTap() {
+            score += 1;
+            // Сохраняем в память браузера
+            localStorage.setItem('score', score);
+            
+            updateUI();
+            tg.HapticFeedback.impactOccurred('light'); 
+        }
+
+        // Запускаем обновление при загрузке
+        updateUI();
     </script>
 </body>
 </html>
