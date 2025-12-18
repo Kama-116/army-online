@@ -2,81 +2,110 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { 
             background: #2c3e50; color: white; text-align: center; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; padding: 20px;
+            font-family: sans-serif; margin: 0; overflow: hidden; user-select: none;
         }
-        .header { background: #1a252f; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .stat-val { color: #f1c40f; font-weight: bold; font-size: 24px; }
+        .header { background: #1a252f; padding: 10px; font-size: 18px; border-bottom: 2px solid #f1c40f; }
         
-        /* Стили для персонажа */
+        /* Стили босса */
+        .boss-container { margin-top: 20px; padding: 10px; }
+        .boss-hp-bar { 
+            width: 80%; height: 20px; background: #c0392b; border-radius: 10px; 
+            margin: 10px auto; border: 2px solid white; overflow: hidden;
+        }
+        #hp-fill { width: 100%; height: 100%; background: #2ecc71; transition: width 0.2s; }
+        
         #character-container {
-            position: relative; width: 200px; height: 250px; margin: 0 auto 20px;
-            background: #34495e; border-radius: 15px; border: 3px solid #f1c40f;
-            overflow: hidden; cursor: pointer;
+            position: relative; width: 220px; height: 220px; margin: 20px auto;
+            background: #34495e; border-radius: 50%; border: 5px solid #f1c40f;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; touch-action: manipulation;
         }
-        #char-img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .btn-tap {
-            background: #27ae60; color: white; border: none; padding: 15px 30px;
-            font-size: 18px; border-radius: 50px; font-weight: bold;
-            box-shadow: 0 4px #1e8449; active-transform: translateY(2px);
+        #char-img { width: 80%; height: 80%; object-fit: contain; }
+
+        /* Анимация вылетающих цифр */
+        .damage-text {
+            position: absolute; color: #f1c40f; font-weight: bold; font-size: 24px;
+            pointer-events: none; animation: flyUp 0.6s linear forwards;
         }
-        .btn-tap:active { transform: translateY(2px); box-shadow: 0 2px #1e8449; }
+        @keyframes flyUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="rank">Звание: Рядовой (Дух)</div>
-        <div>Авторитет: <span id="score" class="stat-val">0</span></div>
+        <div id="rank">Звание: Дух</div>
+        <div>Авторитет: <span id="score">0</span></div>
     </div>
 
-    <div id="character-container" onclick="handleTap()">
-        <img id="char-img" src="img/rank1.jpg" alt="Боец">
+    <div class="boss-container">
+        <div id="boss-name">БОСС: Сержант Помеха</div>
+        <div class="boss-hp-bar"><div id="hp-fill"></div></div>
+        <div>HP: <span id="hp-text">1000/1000</span></div>
     </div>
 
-    <button class="btn-tap" onclick="handleTap()">ВЫПОЛНИТЬ НАРЯД</button>
+    <div id="character-container" onmousedown="handleTap(event)" ontouchstart="handleTap(event)">
+        <img id="char-img" src="img/rank1.JPG" alt="Персонаж">
+    </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Загружаем данные из памяти при старте
+        // Данные
         let score = parseInt(localStorage.getItem('score')) || 0;
-        
+        let bossHP = parseInt(localStorage.getItem('bossHP')) || 1000;
+        let maxHP = 1000;
+
         function updateUI() {
             document.getElementById('score').innerText = score;
-            let rankImg = document.getElementById('char-img');
-            let rankText = document.getElementById('rank');
+            document.getElementById('hp-text').innerText = bossHP + "/" + maxHP;
+            let percent = (bossHP / maxHP) * 100;
+            document.getElementById('hp-fill').style.width = percent + "%";
 
-            // Логика смены званий и КАРТИНОК
-            if (score < 100) {
-                rankText.innerText = "Звание: Дух";
-                rankImg.src = "img/rank1.jpg"; // Путь к картинке духа
-            } else if (score < 500) {
-                rankText.innerText = "Звание: Слон";
-                rankImg.src = "img/rank2.jpg"; // Путь к картинке слона
-            } else {
-                rankText.innerText = "Звание: Дембель";
-                rankImg.src = "img/rank3.jpg"; // Путь к картинке дембеля
+            if (bossHP <= 0) {
+                alert("Сержант повержен! Ты настоящий мужик!");
+                bossHP = 2000; // Следующий босс сильнее
+                maxHP = 2000;
+                localStorage.setItem('bossHP', bossHP);
             }
         }
 
-        function handleTap() {
+        function handleTap(event) {
+            // Урон
             score += 1;
-            // Сохраняем в память браузера
-            localStorage.setItem('score', score);
+            bossHP -= 5; // Один клик снимает 5 HP
             
+            localStorage.setItem('score', score);
+            localStorage.setItem('bossHP', bossHP);
+
+            // Визуальный эффект
+            showDamage(event);
             updateUI();
-            tg.HapticFeedback.impactOccurred('light'); 
+            tg.HapticFeedback.impactOccurred('medium');
         }
 
-        // Запускаем обновление при загрузке
+        function showDamage(event) {
+            let x = event.clientX || event.touches[0].clientX;
+            let y = event.clientY || event.touches[0].clientY;
+            
+            let div = document.createElement('div');
+            div.className = 'damage-text';
+            div.innerText = "-5 HP";
+            div.style.left = x + "px";
+            div.style.top = y + "px";
+            document.body.appendChild(div);
+            
+            setTimeout(() => div.remove(), 600);
+        }
+
         updateUI();
     </script>
 </body>
