@@ -6,107 +6,192 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { 
-            background: #2c3e50; color: white; text-align: center; 
-            font-family: sans-serif; margin: 0; overflow: hidden; user-select: none;
+            background: #1a1a1a; color: white; text-align: center; 
+            font-family: 'Arial Black', sans-serif; margin: 0; overflow: hidden; user-select: none;
         }
-        .header { background: #1a252f; padding: 10px; font-size: 18px; border-bottom: 2px solid #f1c40f; }
         
-        /* Стили босса */
-        .boss-container { margin-top: 20px; padding: 10px; }
-        .boss-hp-bar { 
-            width: 80%; height: 20px; background: #c0392b; border-radius: 10px; 
-            margin: 10px auto; border: 2px solid white; overflow: hidden;
+        .header { 
+            position: absolute; top: 0; width: 100%; z-index: 10;
+            background: rgba(0, 0, 0, 0.8); padding: 10px 0;
+            border-bottom: 2px solid #f1c40f; 
         }
-        #hp-fill { width: 100%; height: 100%; background: #2ecc71; transition: width 0.2s; }
-        
-        #character-container {
-            position: relative; width: 220px; height: 220px; margin: 20px auto;
-            background: #34495e; border-radius: 50%; border: 5px solid #f1c40f;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; touch-action: manipulation;
-        }
-        #char-img { width: 80%; height: 80%; object-fit: contain; }
+        .stat-val { color: #f1c40f; font-size: 20px; }
 
-        /* Анимация вылетающих цифр */
+        /* Босс */
+        .boss-area { margin-top: 70px; position: relative; z-index: 5; }
+        .hp-bar { 
+            width: 70%; height: 20px; background: #444; border-radius: 10px; 
+            margin: 5px auto; border: 2px solid #fff; overflow: hidden;
+        }
+        #hp-fill { width: 100%; height: 100%; background: #e74c3c; transition: width 0.1s; }
+
+        /* Фото на весь экран */
+        #character-target {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 1; cursor: pointer;
+        }
+        #char-img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Кнопка Чипка */
+        .shop-btn {
+            position: absolute; bottom: 30px; right: 20px; z-index: 20;
+            background: #e67e22; color: #fff; border: 3px solid #fff; padding: 15px;
+            border-radius: 50%; font-size: 24px; box-shadow: 0 0 15px rgba(230,126,34,0.6);
+        }
+
+        /* Окно Чипка */
+        #shop-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 100; display: none;
+            flex-direction: column; align-items: center; padding-top: 50px;
+        }
+        .shop-item {
+            background: #2c3e50; width: 90%; margin: 8px 0; padding: 15px;
+            border-radius: 12px; display: flex; justify-content: space-between; align-items: center;
+            border: 2px solid #34495e;
+        }
+        .item-info { text-align: left; }
+        .item-name { font-size: 16px; color: #ecf0f1; }
+        .item-bonus { font-size: 12px; color: #2ecc71; }
+
+        .buy-btn { 
+            background: #f39c12; color: white; border: none; padding: 10px 15px; 
+            border-radius: 8px; font-weight: bold; min-width: 80px;
+        }
+        .buy-btn:disabled { background: #7f8c8d; opacity: 0.6; }
+
+        .close-shop { margin-top: 30px; color: #e74c3c; font-size: 20px; cursor: pointer; border: 1px solid #e74c3c; padding: 10px 20px; border-radius: 10px; }
+
+        /* Урон */
         .damage-text {
-            position: absolute; color: #f1c40f; font-weight: bold; font-size: 24px;
-            pointer-events: none; animation: flyUp 0.6s linear forwards;
+            position: absolute; color: #f1c40f; font-size: 35px; font-weight: bold;
+            pointer-events: none; animation: fly 0.5s ease-out forwards; z-index: 20;
+            text-shadow: 2px 2px #000;
         }
-        @keyframes flyUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
-        }
+        @keyframes fly { 0% { opacity: 1; transform: scale(1); } 100% { transform: translateY(-120px) scale(1.5); opacity: 0; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="rank">Звание: Дух</div>
-        <div>Авторитет: <span id="score">0</span></div>
+        <div>АВТОРИТЕТ: <span id="score" class="stat-val">0</span></div>
+        <div style="font-size: 12px; color: #bdc3c7;">СИЛА УДАРА: <span id="player-dmg">10</span></div>
     </div>
 
-    <div class="boss-container">
-        <div id="boss-name">БОСС: Сержант Помеха</div>
-        <div class="boss-hp-bar"><div id="hp-fill"></div></div>
-        <div>HP: <span id="hp-text">1000/1000</span></div>
+    <div class="boss-area">
+        <div id="hp-text" style="font-size: 14px; margin-bottom: 5px;">СЕРЖАНТ: 1000 HP</div>
+        <div class="hp-bar"><div id="hp-fill"></div></div>
     </div>
 
-    <div id="character-container" onmousedown="handleTap(event)" ontouchstart="handleTap(event)">
-        <img id="char-img" src="img/rank1.JPG" alt="Персонаж">
+    <div id="character-target" onclick="handleTap(event)">
+        <img id="char-img" src="https://github.com/Kama-116/army-online/blob/9f579bfe3fe90a46980437c2063d2168b6ac5136/rank1.JPG?raw=true" alt="Солдат">
+    </div>
+
+    <button class="shop-btn" onclick="toggleShop(true)">☕</button>
+</div>
+            <button class="buy-btn" id="item1" onclick="buyItem('item1', 100, 5)">100 ₽</button>
+        </div>
+
+        <div class="shop-item">
+            <div class="item-info">
+                <div class="item-name">Пирожок с картошкой</div>
+                <div class="item-bonus">+15 к урону</div>
+            </div>
+            <button class="buy-btn" id="item2" onclick="buyItem('item2', 500, 15)">500 ₽</button>
+        </div>
+
+        <div class="shop-item">
+            <div class="item-info">
+                <div class="item-name">Дембельский ужин</div>
+                <div class="item-bonus">+60 к урону</div>
+            </div>
+            <button class="buy-btn" id="item3" onclick="buyItem('item3', 2500, 60)">2500 ₽</button>
+        </div>
+
+        <div class="close-shop" onclick="toggleShop(false)">ВЕРНУТЬСЯ НА ПЛАЦ</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Данные
+        // Состояние игры
         let score = parseInt(localStorage.getItem('score')) || 0;
         let bossHP = parseInt(localStorage.getItem('bossHP')) || 1000;
+        let damage = parseInt(localStorage.getItem('damage')) || 10;
         let maxHP = 1000;
+        let ownedItems = JSON.parse(localStorage.getItem('items')) || [];
+
+        const hitSound = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
 
         function updateUI() {
             document.getElementById('score').innerText = score;
-            document.getElementById('hp-text').innerText = bossHP + "/" + maxHP;
-            let percent = (bossHP / maxHP) * 100;
-            document.getElementById('hp-fill').style.width = percent + "%";
+            document.getElementById('player-dmg').innerText = damage;
+            document.getElementById('hp-text').innerText = "СЕРЖАНТ: " + bossHP + " HP";
+            document.getElementById('hp-fill').style.width = (bossHP / maxHP * 100) + "%";
+
+            ownedItems.forEach(id => {
+                let btn = document.getElementById(id);
+                if(btn) { btn.innerText = "СЪЕДЕНО"; btn.disabled = true; }
+            });
 
             if (bossHP <= 0) {
-                alert("Сержант повержен! Ты настоящий мужик!");
-                bossHP = 2000; // Следующий босс сильнее
-                maxHP = 2000;
+                tg.showAlert("Сержант выдохся! Ты победил в этом раунде.");
+                bossHP = 3000; maxHP = 3000;
                 localStorage.setItem('bossHP', bossHP);
             }
         }
 
-        function handleTap(event) {
-            // Урон
+        function handleTap(e) {
+            hitSound.currentTime = 0; hitSound.play();
             score += 1;
-            bossHP -= 5; // Один клик снимает 5 HP
+            bossHP -= damage;
             
             localStorage.setItem('score', score);
             localStorage.setItem('bossHP', bossHP);
-
-            // Визуальный эффект
-            showDamage(event);
+            showDamage(e);
             updateUI();
             tg.HapticFeedback.impactOccurred('medium');
         }
 
-        function showDamage(event) {
-            let x = event.clientX || event.touches[0].clientX;
-            let y = event.clientY || event.touches[0].clientY;
-            
+        function toggleShop(show) {
+            document.getElementById('shop-overlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function buyItem(id, price, addDmg) {
+            if (score >= price) {
+                score -= price;
+                damage += addDmg;
+                ownedItems.push(id);
+                localStorage.setItem('score', score);
+                localStorage.setItem('damage', damage);
+                localStorage.setItem('items', JSON.stringify(ownedItems));
+                updateUI();
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                tg.showAlert("Не хватает заначки!");
+            }
+        }
+
+        function showDamage(e) {
+            let x = e.clientX  200; let y = e.clientY  300;
             let div = document.createElement('div');
             div.className = 'damage-text';
-            div.innerText = "-5 HP";
-            div.style.left = x + "px";
-            div.style.top = y + "px";
+            div.innerText = "-" + damage;
+            div.style.left = (x - 20) + "px"; div.style.top = (y - 50) + "px";
             document.body.appendChild(div);
-            
-            setTimeout(() => div.remove(), 600);
+            setTimeout(() => div.remove(), 500);
         }
 
         updateUI();
     </script>
 </body>
 </html>
+<div id="shop-overlay">
+        <h1 style="color: #f1c40f;">ЧИПОК</h1>
+        <p style="margin-bottom: 20px;">Прикупи хавчика, подними силы!</p>
+        
+        <div class="shop-item">
+            <div class="item-info">
+                <div class="item-name">Сникерс</div>
+                <div class="item-bonus">+5 к урону</div>
