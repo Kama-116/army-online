@@ -3,160 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Army Online Live</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background: #1a1a1a; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; user-select: none; }
         
         /* ВЕРХНЯЯ ПАНЕЛЬ */
         .top-bar { display: flex; background: rgba(0,0,0,0.9); padding: 8px 5px; font-size: 11px; justify-content: space-around; border-bottom: 2px solid #f1c40f; position: relative; z-index: 100; }
-        .stat-item { display: flex; flex-direction: column; align-items: center; }
         .val { color: #f1c40f; font-weight: bold; font-size: 13px; }
 
         /* ПОЗЫВНОЙ */
-        .nickname-area { position: absolute; top: 50px; left: 15px; z-index: 80; text-align: left; }
-        #player-nick { background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 5px; border-left: 3px solid #f1c40f; font-weight: bold; cursor: pointer; color: #fff; font-size: 14px; }
+        .nickname-area { position: absolute; top: 50px; left: 15px; z-index: 80; }
+        #player-nick { background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 5px; border-left: 3px solid #f1c40f; font-weight: bold; font-size: 14px; }
 
         /* НАВИГАЦИЯ */
         .right-nav { position: absolute; right: 10px; top: 70px; display: flex; flex-direction: column; gap: 10px; z-index: 50; }
-        .nav-btn { width: 50px; height: 50px; background: rgba(44, 62, 80, 0.9); border: 2px solid #f1c40f; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .nav-btn img { width: 80%; height: 80%; object-fit: contain; }
+        .nav-btn { width: 50px; height: 50px; background: rgba(44, 62, 80, 0.9); border: 2px solid #f1c40f; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-        /* КАЗАРМА И АНИМАЦИЯ ДЫХАНИЯ */
+        /* КАЗАРМА + АНИМАЦИЯ ДЫХАНИЯ ГГ */
         #main-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; align-items: center; justify-content: center; }
-        #char-img { max-width: 90%; max-height: 80%; object-fit: contain; animation: breath-anim 3s ease-in-out infinite; }
-        @keyframes breath-anim {
-            0%, 100% { transform: scale(1); filter: brightness(1); }
-            50% { transform: scale(1.03); filter: brightness(1.1); }
+        #char-img { 
+            max-width: 90%; max-height: 80%; object-fit: contain; 
+            animation: breathing 4s ease-in-out infinite !important;
+            will-change: transform;
+        }
+        @keyframes breathing {
+            0%, 100% { transform: scale(1) translateY(0); filter: brightness(1); }
+            50% { transform: scale(1.03) translateY(-5px); filter: brightness(1.1); }
         }
 
         /* ОКНА */
         .window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; }
-        #win-bosses { background: #d2b48c url('https://www.transparenttextures.com/patterns/paper.png'); color: #3d2b1f; padding-top: 20px; overflow-y: auto; }
+        #win-bosses { background: #d2b48c; padding-top: 20px; color: #3d2b1f; }
 
-        /* АРЕНА БОЯ И АНИМАЦИИ БОССА */
-        #battle-arena { background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
-        #boss-bg { max-width: 95%; max-height: 60%; object-fit: contain; z-index: 5; transition: filter 0.1s; margin-top: -50px; }
+        /* АРЕНА БОЯ */
+        #battle-arena { background: #000; z-index: 2000; justify-content: center; align-items: center; }
         
-        /* Постоянное покачивание босса */
-        .boss-idle { animation: boss-move 4s ease-in-out infinite; }
-        @keyframes boss-move {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            25% { transform: translateY(-8px) rotate(1deg); }
-            75% { transform: translateY(8px) rotate(-1deg); }
+        /* БОСС И ЕГО АНИМАЦИИ */
+        .boss-container { position: relative; width: 100%; height: 60%; display: flex; align-items: center; justify-content: center; }
+        #boss-bg { max-width: 95%; max-height: 100%; object-fit: contain; transition: filter 0.1s; }
+        
+        /* Класс спокойного движения босса */
+        .boss-idle-active { animation: boss-sway 5s ease-in-out infinite !important; }
+        @keyframes boss-sway {
+            0%, 100% { transform: rotate(-1deg) translateY(0); }
+            50% { transform: rotate(1deg) translateY(15px); }
         }
 
-        /* Выпад босса (атака) */
-        .boss-attack-fx { animation: boss-strike 0.5s ease-in-out !important; }
-        @keyframes boss-strike {
+        /* Класс резкого удара босса */
+        .boss-striking { animation: boss-jump 0.4s ease-out !important; }
+        @keyframes boss-jump {
             0% { transform: scale(1); }
-            50% { transform: scale(1.25) translateY(30px); filter: contrast(1.4) brightness(1.2); }
+            50% { transform: scale(1.25) translateY(40px); filter: brightness(1.5) contrast(1.2); }
             100% { transform: scale(1); }
         }
 
-        .flash-red { animation: flash-red-anim 0.2s ease-in-out; }
-        @keyframes flash-red-anim {
-            0% { filter: brightness(1); }
-            50% { filter: brightness(1.5) sepia(1) saturate(5) hue-rotate(-50deg); }
-            100% { filter: brightness(1); }
-        }
+        /* ИНТЕРФЕЙС БОЯ */
+        .boss-header { position: absolute; top: 15px; left: 15px; text-align: left; z-index: 2010; }
+        .hp-box { width: 200px; height: 20px; background: #333; border: 1.5px solid #fff; position: relative; border-radius: 4px; overflow: hidden; }
+        #boss-hp-fill { height: 100%; background: #c0392b; width: 100%; transition: width 0.3s; }
+        #hp-text { position: absolute; width: 100%; text-align: center; font-size: 12px; top: 1px; font-weight: bold; color: white; text-shadow: 1px 1px #000; }
 
-        .shake { animation: shake-anim 0.3s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake-anim {
-            10%, 90% { transform: translate3d(-3px, 0, 0); }
-            20%, 80% { transform: translate3d(5px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-7px, 0, 0); }
-            40%, 60% { transform: translate3d(7px, 0, 0); }
-        }
-
-        .boss-header { position: absolute; top: 15px; left: 15px; text-align: left; z-index: 10; }
-        .boss-name-label { font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; color: #fff; text-transform: uppercase; }
-        .hp-box { width: 180px; height: 18px; background: #333; border: 1.5px solid #fff; margin-top: 5px; border-radius: 3px; overflow: hidden; position: relative; }
-        #boss-hp-fill { width: 100%; height: 100%; background: #c0392b; transition: width 0.3s; }
-        #hp-text { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: bold; color: white; top: 1px; z-index: 11; text-shadow: 1px 1px #000; }
-
-        #damage-stats-box { position: absolute; bottom: 120px; width: 90%; height: 80px; background: rgba(0,0,0,0.7); border: 1px solid #f1c40f; border-radius: 5px; z-index: 15; overflow-y: auto; padding: 5px; text-align: left; font-size: 11px; }
-        .stat-line { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 2px 0; color: #ccc; }
-
-        .attack-panel { position: absolute; bottom: 10px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 20; background: rgba(0,0,0,0.8); padding: 10px 0; }
-        .skill-slot { width: 75px; display: flex; flex-direction: column; align-items: center; }
-        .skill-btn { width: 60px; height: 60px; border: 2px solid #f1c40f; border-radius: 10px; overflow: hidden; position: relative; background: #000; }
-        .skill-btn img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: lighten; }
+        #damage-stats-box { position: absolute; bottom: 130px; width: 85%; height: 70px; background: rgba(0,0,0,0.7); border: 1px solid #f1c40f; border-radius: 5px; overflow-y: auto; padding: 5px; font-size: 11px; text-align: left; }
         
-        .cooldown-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: bold; }
-        .refresh-btn { font-size: 9px; background: #27ae60; border: none; color: white; padding: 3px 0; margin-top: 3px; border-radius: 3px; width: 100%; }
+        .attack-panel { position: absolute; bottom: 15px; width: 100%; display: flex; justify-content: center; gap: 8px; background: rgba(0,0,0,0.8); padding: 10px 0; }
+        .skill-btn { width: 65px; height: 65px; border: 2px solid #f1c40f; border-radius: 12px; overflow: hidden; background: #000; position: relative; }
+        .skill-btn img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: lighten; }
 
-        .dmg-pop { position: absolute; color: #ff3b3b; font-size: 45px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 3000; animation: float-up 0.6s ease-out forwards; }
-        @keyframes float-up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
+        .shake { animation: shake-screen 0.3s; }
+        @keyframes shake-screen {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(5px, -5px); }
+            75% { transform: translate(-5px, 5px); }
+        }
 
-        .exit-btn { position: absolute; top: 15px; right: 15px; border: 1px solid #fff; color: #fff; padding: 5px 12px; font-size: 12px; z-index: 100; background: rgba(0,0,0,0.5); }
+        .exit-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; padding: 6px 12px; z-index: 2020; border-radius: 5px; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div class="stat-item"><img src="https://img.icons8.com/color/48/medallion.png" width="18"><span class="val" id="score">0</span></div>
-        <div class="stat-item"><img src="https://img.icons8.com/color/48/ruble.png" width="18"><span class="val" id="money">100</span></div>
+        <div class="stat-item">МЕДАЛИ: <span class="val" id="score">0</span></div>
+        <div class="stat-item">РУБЛИ: <span class="val" id="money">100</span></div>
     </div>
 
     <div class="nickname-area"><div id="player-nick" onclick="changeNickname()">Боец</div></div>
 
     <div class="right-nav">
-        <div class="nav-btn" onclick="showWin('bosses')"><img src="https://github.com/Kama-116/army-online/blob/main/boss.png?raw=true"></div>
-        <div class="nav-btn" onclick="closeWins()"><img src="https://img.icons8.com/color/96/barracks.png"></div>
+        <div class="nav-btn" onclick="showWin('bosses')">💀</div>
+        <div class="nav-btn" onclick="closeWins()">🏠</div>
     </div>
 
-    <div id="main-view"><img id="char-img" src="https://github.com/Kama-116/army-online/blob/main/rank1.JPG?raw=true"></div>
+    <div id="main-view">
+        <img id="char-img" src="https://github.com/Kama-116/army-online/blob/main/rank1.JPG?raw=true">
+    </div>
 
     <div id="battle-arena" class="window">
-        <img id="boss-bg" class="boss-idle" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
+        <button class="exit-btn" onclick="exitBattle()">СБЕЖАТЬ</button>
         
         <div class="boss-header">
-            <div class="boss-name-label">Ефрейтор Боков</div>
+            <b style="font-size: 18px; text-transform: uppercase;">Ефрейтор Боков</b>
             <div class="hp-box">
-                <div id="hp-text">1000 / 1000</div>
                 <div id="boss-hp-fill"></div>
+                <div id="hp-text">1000 / 1000</div>
             </div>
-            <div id="battle-timer" style="font-size: 14px; margin-top: 5px; color: #f1c40f;">08:00:00</div>
+        </div>
+        
+        <div class="boss-container">
+            <img id="boss-bg" class="boss-idle-active" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
         </div>
 
-        <button class="exit-btn" onclick="exitBattle()">СБЕЖАТЬ</button>
-
-        <div id="damage-stats-box">
-            <div style="color: #f1c40f; font-weight: bold; margin-bottom: 5px; font-size: 10px; text-transform: uppercase;">Журнал боя:</div>
-            <div id="stats-content"></div>
-        </div>
+        <div id="damage-stats-box"><div id="stats-content">Приготовься к бою...</div></div>
 
         <div class="attack-panel">
-            <div class="skill-slot">
-                <div class="skill-btn" onclick="useSkill(0)"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"><div class="cooldown-overlay" id="cd-0"></div></div>
-                <button class="refresh-btn" onclick="resetCD(0)">3 руб.</button>
-            </div>
-            <div class="skill-slot">
-                <div class="skill-btn" onclick="useSkill(1)"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"><div class="cooldown-overlay" id="cd-1"></div></div>
-                <button class="refresh-btn" onclick="resetCD(1)">3 руб.</button>
-            </div>
-            <div class="skill-slot">
-                <div class="skill-btn" onclick="useSkill(2)"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"><div class="cooldown-overlay" id="cd-2"></div></div>
-                <button class="refresh-btn" onclick="resetCD(2)">3 руб.</button>
-            </div>
-            <div class="skill-slot">
-                <div class="skill-btn" onclick="useSkill(3)"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"><div class="cooldown-overlay" id="cd-3"></div></div>
-                <button class="refresh-btn" onclick="resetCD(3)">3 руб.</button>
-            </div>
+            <div class="skill-btn" onclick="useSkill(0, 'Голова')"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"></div>
+            <div class="skill-btn" onclick="useSkill(1, 'Зад')"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"></div>
+            <div class="skill-btn" onclick="useSkill(2, 'Глаза')"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"></div>
+            <div class="skill-btn" onclick="useSkill(3, 'Грудь')"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"></div>
         </div>
     </div>
 
     <div id="win-bosses" class="window">
-        <h2 style="text-decoration: underline;">ЛИЧНЫЕ ДЕЛА</h2>
-        <div style="width: 90%; background: rgba(255,255,255,0.3); border: 1px solid #8b4513; display: flex; padding: 15px;">
-            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" width="80" height="100" style="border:2px solid #000; margin-right: 15px;">
-            <div style="text-align: left;">
-                <b style="font-size: 18px;">Ефрейтор Боков</b><br>
-                <span>Сложность: Низкая</span><br><br>
-                <button onclick="startBattle()" style="background:#f39c12; color:white; border:none; padding:10px 20px; font-weight:bold;">АТАКОВАТЬ</button>
-            </div>
+        <h2>ЛИЧНЫЕ ДЕЛА</h2>
+        <div style="background: rgba(255,255,255,0.5); padding: 15px; margin: 10px; border: 2px solid #000;" onclick="startBattle()">
+            <b>ЕФРЕЙТОР БОКОВ</b><br>HP: 1000<br><br>
+            <button style="padding: 10px; background: #000; color: #fff; border: none; font-weight: bold;">НАЧАТЬ БОЙ</button>
         </div>
-        <div onclick="closeWins()" style="margin-top:20px; font-weight:bold; cursor:pointer;">ЗАКРЫТЬ</div>
+        <button onclick="closeWins()" style="margin-top: 20px;">ЗАКРЫТЬ ПАПКУ</button>
     </div>
 
     <script>
@@ -167,116 +140,83 @@
         let money = parseInt(localStorage.getItem('money')) || 100;
         let nick = localStorage.getItem('playerNick') || "Боец";
         let bossHP = parseInt(localStorage.getItem('bossHP')) || 1000;
-        let bossMaxHP = 1000;
-        let battleEndTime = parseInt(localStorage.getItem('battleEndTime')) || 0;
-        let cds = JSON.parse(localStorage.getItem('skillCDs')) || [0, 0, 0, 0];
+        const bossMaxHP = 1000;
 
         function updateUI() {
             document.getElementById('score').innerText = score;
             document.getElementById('money').innerText = money;
             document.getElementById('player-nick').innerText = nick;
             
-            let hpFill = document.getElementById('boss-hp-fill');
-            let hpText = document.getElementById('hp-text');
-            if(hpFill && hpText) {
-                hpFill.style.width = (bossHP / bossMaxHP * 100) + "%";
-                hpText.innerText = bossHP + " / " + bossMaxHP;
-            }
-            
-            let now = Date.now();
-            if (battleEndTime > 0) {
-                let left = battleEndTime - now;
-                if (left <= 0) resetBattle();
-                else document.getElementById('battle-timer').innerText = formatTime(left);
-            }
-
-            cds.forEach((time, i) => {
-                let overlay = document.getElementById('cd-' + i);
-                if (overlay) {
-                    if (now < time) {
-                        overlay.style.display = 'flex';
-                        overlay.innerText = formatTime(time - now);
-                    } else {
-                        overlay.style.display = 'none';
-                    }
-                }
-            });
+            document.getElementById('boss-hp-fill').style.width = (bossHP / bossMaxHP * 100) + "%";
+            document.getElementById('hp-text').innerText = bossHP + " / " + bossMaxHP;
         }
 
-        // ИМИТАЦИЯ УДАРОВ БОССА
+        // ЦИКЛ АТАКИ БОССА
         setInterval(() => {
-            let arena = document.getElementById('battle-arena');
-            let bossImg = document.getElementById('boss-bg');
+            const arena = document.getElementById('battle-arena');
+            const bossImg = document.getElementById('boss-bg');
             if (arena.style.display === 'flex') {
-                bossImg.classList.add('boss-attack-fx');
-                tg.HapticFeedback.notificationOccurred('warning');
-                setTimeout(() => bossImg.classList.remove('boss-attack-fx'), 500);
+                bossImg.classList.remove('boss-idle-active');
+                bossImg.classList.add('boss-striking');
+                
+                try { tg.HapticFeedback.notificationOccurred('warning'); } catch(e) {}
+
+                setTimeout(() => {
+                    bossImg.classList.remove('boss-striking');
+                    bossImg.classList.add('boss-idle-active');
+                }, 400);
             }
-        }, 7000);
+        }, 6000);
 
-        function useSkill(idx) {
-            if (Date.now() < cds[idx]) return;
-            let damage = [20, 15, 10, 25][idx];
-            let skillNames = ["удар в голову", "пинок под зад", "пальцы в глаза", "удар в грудь"];
+        function useSkill(idx, name) {
+            let damage = [35, 25, 20, 45][idx];
             bossHP = Math.max(0, bossHP - damage);
-            cds[idx] = Date.now() + (2 * 60 * 60 * 1000);
+
+            // Тряска экрана
+            let arena = document.getElementById('battle-arena');
+            arena.classList.add('shake');
+            setTimeout(() => arena.classList.remove('shake'), 300);
+
+            // Вспышка урона на боссе
+            let b = document.getElementById('boss-bg');
+            b.style.filter = "brightness(2) sepia(1) saturate(3)";
+            setTimeout(() => b.style.filter = "", 200);
+
+            // Лог боя
+            let log = document.getElementById('stats-content');
+            log.innerHTML = `<div><b>${nick}</b>: урон ${damage} (${name})</div>` + log.innerHTML;
+
+            if (bossHP < 500) b.src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true";
             
-            // Эффекты игрока
-            document.getElementById('battle-arena').classList.remove('shake');
-            void document.getElementById('battle-arena').offsetWidth;
-            document.getElementById('battle-arena').classList.add('shake');
-
-            let bossImg = document.getElementById('boss-bg');
-            bossImg.classList.remove('flash-red');
-            void bossImg.offsetWidth;
-            bossImg.classList.add('flash-red');
-
-            let stats = document.getElementById('stats-content');
-            let line = document.createElement('div');
-            line.className = 'stat-line';
-            line.innerHTML = `<b>${nick}</b>: -${damage} (${skillNames[idx]})`;
-            stats.prepend(line);
-
-            if (bossHP < 500) bossImg.src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true";
-            if (bossHP <= 0) { tg.showAlert("ПОБЕДА!"); score += 500; resetBattle(); }
-            save(); updateUI();
-            tg.HapticFeedback.impactOccurred('heavy');
+            if (bossHP <= 0) {
+                tg.showAlert("БОСС ПОВЕРЖЕН!");
+                score += 500;
+                bossHP = 1000;
+                exitBattle();
+            }
+            
+            updateUI();
+            save();
+            try { tg.HapticFeedback.impactOccurred('heavy'); } catch(e) {}
         }
 
         function changeNickname() {
-            let n = prompt("Твой позывной:", nick);
-            if (n) { nick = n; localStorage.setItem('playerNick', nick); updateUI(); }
+            let p = prompt("Твой позывной:", nick);
+            if (p) { nick = p; save(); updateUI(); }
         }
 
-        function resetCD(idx) {
-            if (money >= 3) { money -= 3; cds[idx] = 0; save(); updateUI(); tg.HapticFeedback.notificationOccurred('success'); }
-        }
-
-        function startBattle() {
-            if (battleEndTime === 0) battleEndTime = Date.now() + (8 * 60 * 60 * 1000);
-            document.getElementById('win-bosses').style.display = 'none';
-            document.getElementById('battle-arena').style.display = 'flex';
-            if (bossHP < 500) document.getElementById('boss-bg').src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true";
-            updateUI();
-        }
-
+        function startBattle() { closeWins(); document.getElementById('battle-arena').style.display = 'flex'; updateUI(); }
         function exitBattle() { document.getElementById('battle-arena').style.display = 'none'; }
-        function resetBattle() { bossHP = 1000; battleEndTime = 0; cds = [0, 0, 0, 0]; document.getElementById('stats-content').innerHTML = ""; exitBattle(); save(); }
-        function formatTime(ms) {
-            let h = Math.floor(ms / 3600000).toString().padStart(2, '0');
-            let m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
-            let s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
-            return `${h}:${m}:${s}`;
-        }
-        function save() {
-            localStorage.setItem('score', score); localStorage.setItem('money', money);
-            localStorage.setItem('bossHP', bossHP); localStorage.setItem('battleEndTime', battleEndTime);
-            localStorage.setItem('skillCDs', JSON.stringify(cds));
-        }
         function showWin(id) { document.getElementById('win-' + id).style.display = 'flex'; }
         function closeWins() { document.querySelectorAll('.window').forEach(w => w.style.display = 'none'); }
+        
+        function save() {
+            localStorage.setItem('score', score);
+            localStorage.setItem('money', money);
+            localStorage.setItem('bossHP', bossHP);
+            localStorage.setItem('playerNick', nick);
+        }
 
-        setInterval(updateUI, 1000);
         updateUI();
     </script>
 </body>
