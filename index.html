@@ -84,11 +84,20 @@
     </div>
 
     <div id="character-target" onclick="handleTap(event)">
-        <img id="char-img" src="https://github.com/Kama-116/army-online/blob/9f579bfe3fe90a46980437c2063d2168b6ac5136/rank1.JPG?raw=true" alt="Солдат">
+        <img id="char-img" src="https://raw.githubusercontent.com/Kama-116/army-online/9f579bfe3fe90a46980437c2063d2168b6ac5136/rank1.JPG" alt="Солдат">
     </div>
 
     <button class="shop-btn" onclick="toggleShop(true)">☕</button>
-</div>
+
+    <div id="shop-overlay">
+        <h1 style="color: #f1c40f;">ЧИПОК</h1>
+        <p style="margin-bottom: 20px;">Прикупи хавчика, подними силы!</p>
+        
+        <div class="shop-item">
+            <div class="item-info">
+                <div class="item-name">Сникерс</div>
+                <div class="item-bonus">+5 к урону</div>
+            </div>
             <button class="buy-btn" id="item1" onclick="buyItem('item1', 100, 5)">100 ₽</button>
         </div>
 
@@ -174,7 +183,7 @@
         }
 
         function showDamage(e) {
-            let x = e.clientX  200; let y = e.clientY  300;
+            let x = e.clientX || 200; let y = e.clientY || 300;
             let div = document.createElement('div');
             div.className = 'damage-text';
             div.innerText = "-" + damage;
@@ -187,11 +196,3 @@
     </script>
 </body>
 </html>
-<div id="shop-overlay">
-        <h1 style="color: #f1c40f;">ЧИПОК</h1>
-        <p style="margin-bottom: 20px;">Прикупи хавчика, подними силы!</p>
-        
-        <div class="shop-item">
-            <div class="item-info">
-                <div class="item-name">Сникерс</div>
-                <div class="item-bonus">+5 к урону</div>
