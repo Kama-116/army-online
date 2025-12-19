@@ -31,17 +31,15 @@
 
         /* АРЕНА БОЯ */
         #battle-arena { background: #000; z-index: 2000; display: none; align-items: center; justify-content: center; }
-        #boss-bg { max-width: 95%; max-height: 70%; object-fit: contain; z-index: 5; transition: filter 0.1s; }
+        #boss-bg { max-width: 95%; max-height: 60%; object-fit: contain; z-index: 5; transition: filter 0.1s; margin-top: -50px; }
         
-        /* ЭФФЕКТ МИГАНИЯ ПРИ УРОНЕ */
         .flash-red { animation: flash-red-anim 0.2s ease-in-out; }
         @keyframes flash-red-anim {
-            0% { filter: brightness(1) sepia(0); }
+            0% { filter: brightness(1); }
             50% { filter: brightness(1.5) sepia(1) saturate(5) hue-rotate(-50deg); }
-            100% { filter: brightness(1) sepia(0); }
+            100% { filter: brightness(1); }
         }
 
-        /* ТРЯСКА */
         .shake { animation: shake-anim 0.3s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake-anim {
             10%, 90% { transform: translate3d(-3px, 0, 0); }
@@ -52,22 +50,28 @@
 
         .boss-header { position: absolute; top: 15px; left: 15px; text-align: left; z-index: 10; }
         .boss-name-label { font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; color: #fff; text-transform: uppercase; }
-        .hp-box { width: 180px; height: 15px; background: #333; border: 1.5px solid #fff; margin-top: 5px; border-radius: 3px; overflow: hidden; }
+        .hp-box { width: 180px; height: 18px; background: #333; border: 1.5px solid #fff; margin-top: 5px; border-radius: 3px; overflow: hidden; position: relative; }
         #boss-hp-fill { width: 100%; height: 100%; background: #c0392b; transition: width 0.3s; }
+        #hp-text { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: bold; color: white; top: 1px; z-index: 11; text-shadow: 1px 1px #000; }
+
+        /* СТАТИСТИКА УРОНА */
+        #damage-stats-box { position: absolute; bottom: 120px; width: 90%; height: 80px; background: rgba(0,0,0,0.7); border: 1px solid #f1c40f; border-radius: 5px; z-index: 15; overflow-y: auto; padding: 5px; text-align: left; font-size: 12px; }
+        .stat-line { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 2px 0; color: #ccc; }
+        .stat-line b { color: #f1c40f; }
 
         /* ПАНЕЛЬ УДАРОВ */
-        .attack-panel { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 20; background: rgba(0,0,0,0.6); padding: 15px 0; border-top: 1px solid #f1c40f; }
+        .attack-panel { position: absolute; bottom: 10px; width: 100%; display: flex; justify-content: center; gap: 8px; z-index: 20; background: rgba(0,0,0,0.8); padding: 10px 0; }
         .skill-slot { width: 75px; display: flex; flex-direction: column; align-items: center; }
-        .skill-btn { width: 65px; height: 65px; border: 2px solid #f1c40f; border-radius: 10px; overflow: hidden; position: relative; background: #000; }
+        .skill-btn { width: 60px; height: 60px; border: 2px solid #f1c40f; border-radius: 10px; overflow: hidden; position: relative; background: #000; }
         .skill-btn img { width: 100%; height: 100%; object-fit: cover; mix-blend-mode: lighten; }
         
-        .cooldown-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; font-size: 11px; color: #fff; font-weight: bold; }
-        .refresh-btn { font-size: 10px; background: #27ae60; border: none; color: white; padding: 4px 0; margin-top: 5px; border-radius: 4px; width: 100%; font-weight: bold; }
+        .cooldown-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; font-size: 10px; color: #fff; font-weight: bold; }
+        .refresh-btn { font-size: 9px; background: #27ae60; border: none; color: white; padding: 3px 0; margin-top: 3px; border-radius: 3px; width: 100%; }
 
         .dmg-pop { position: absolute; color: #ff3b3b; font-size: 45px; font-weight: bold; text-shadow: 2px 2px #000; pointer-events: none; z-index: 3000; animation: float-up 0.6s ease-out forwards; }
-        @keyframes float-up { 0% { opacity: 1; transform: translateY(0) scale(1.2); } 100% { opacity: 0; transform: translateY(-120px) scale(1.8); } }
+        @keyframes float-up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
 
-        .exit-btn { position: absolute; top: 15px; right: 15px; border: 1px solid #fff; color: #fff; padding: 5px 12px; font-size: 12px; z-index: 100; background: rgba(0,0,0,0.5); border-radius: 5px; }
+        .exit-btn { position: absolute; top: 15px; right: 15px; border: 1px solid #fff; color: #fff; padding: 5px 12px; font-size: 12px; z-index: 100; background: rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -86,29 +90,24 @@
 
     <div id="main-view"><img id="char-img" src="https://github.com/Kama-116/army-online/blob/main/rank1.JPG?raw=true"></div>
 
-    <div id="win-bosses" class="window">
-        <h2 style="text-decoration: underline;">ЛИЧНЫЕ ДЕЛА</h2>
-        <div style="width: 90%; background: rgba(255,255,255,0.3); border: 1px solid #8b4513; display: flex; padding: 15px; border-radius: 5px;">
-            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" width="80" height="100" style="border:2px solid #000; margin-right: 15px; background: white;">
-            <div style="text-align: left;">
-                <b style="font-size: 18px;">Ефрейтор Боков</b><br>
-                <span style="color: #27ae60;">Сложность: Низкая</span><br><br>
-                <button onclick="startBattle()" style="background:#f39c12; color:white; border:none; padding:10px 20px; font-weight:bold; border-radius:3px;">АТАКОВАТЬ</button>
-            </div>
-        </div>
-        <div onclick="closeWins()" style="margin-top:20px; font-weight:bold; cursor:pointer; color: #8b4513;">ЗАКРЫТЬ ПАПКУ</div>
-    </div>
-
     <div id="battle-arena" class="window">
         <img id="boss-bg" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
         
         <div class="boss-header">
             <div class="boss-name-label">Ефрейтор Боков</div>
-            <div class="hp-box"><div id="boss-hp-fill"></div></div>
-            <div id="battle-timer" style="font-size: 16px; margin-top: 5px; font-weight: bold; color: #f1c40f;">08:00:00</div>
+            <div class="hp-box">
+                <div id="hp-text">1000 / 1000</div>
+                <div id="boss-hp-fill"></div>
+            </div>
+            <div id="battle-timer" style="font-size: 14px; margin-top: 5px; color: #f1c40f;">08:00:00</div>
         </div>
 
         <button class="exit-btn" onclick="exitBattle()">СБЕЖАТЬ</button>
+
+        <div id="damage-stats-box">
+            <div style="color: #f1c40f; font-weight: bold; margin-bottom: 5px; font-size: 10px; text-transform: uppercase;">Журнал боя:</div>
+            <div id="stats-content"></div>
+        </div>
 
         <div class="attack-panel">
             <div class="skill-slot">
@@ -130,6 +129,19 @@
         </div>
     </div>
 
+    <div id="win-bosses" class="window">
+        <h2 style="text-decoration: underline;">ЛИЧНЫЕ ДЕЛА</h2>
+        <div style="width: 90%; background: rgba(255,255,255,0.3); border: 1px solid #8b4513; display: flex; padding: 15px;">
+            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" width="80" height="100" style="border:2px solid #000; margin-right: 15px;">
+            <div style="text-align: left;">
+                <b style="font-size: 18px;">Ефрейтор Боков</b><br>
+                <span>Сложность: Низкая</span><br><br>
+                <button onclick="startBattle()" style="background:#f39c12; color:white; border:none; padding:10px 20px; font-weight:bold;">АТАКОВАТЬ</button>
+            </div>
+        </div>
+        <div onclick="closeWins()" style="margin-top:20px; font-weight:bold; cursor:pointer;">ЗАКРЫТЬ</div>
+    </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
@@ -147,8 +159,14 @@
             document.getElementById('score').innerText = score;
             document.getElementById('money').innerText = money;
             document.getElementById('player-nick').innerText = nick;
+            
+            // ОБНОВЛЕНИЕ HP
             let hpFill = document.getElementById('boss-hp-fill');
-            if(hpFill) hpFill.style.width = (bossHP / bossMaxHP * 100) + "%";
+            let hpText = document.getElementById('hp-text');
+            if(hpFill && hpText) {
+                hpFill.style.width = (bossHP / bossMaxHP * 100) + "%";
+                hpText.innerText = bossHP + " / " + bossMaxHP;
+            }
             
             let now = Date.now();
             if (battleEndTime > 0) {
@@ -170,41 +188,44 @@
             });
         }
 
-        function triggerDamageEffects() {
-            // Тряска арены
-            let arena = document.getElementById('battle-arena');
-            arena.classList.remove('shake');
-            void arena.offsetWidth;
-            arena.classList.add('shake');
-
-            // Красное мигание босса
-            let bossImg = document.getElementById('boss-bg');
-            bossImg.classList.remove('flash-red');
-            void bossImg.offsetWidth;
-            bossImg.classList.add('flash-red');
-        }
-
         function useSkill(idx) {
             if (Date.now() < cds[idx]) return;
             
-            triggerDamageEffects();
             let dmgs = [20, 15, 10, 25];
             let damage = dmgs[idx];
+            let skillNames = ["удар в голову", "пинок под зад", "пальцы в глаза", "удар в грудь"];
+            
             bossHP -= damage;
+            if (bossHP < 0) bossHP = 0;
+            
             cds[idx] = Date.now() + (2 * 60 * 60 * 1000);
             
+            // ЭФФЕКТЫ
+            let arena = document.getElementById('battle-arena');
+            arena.classList.remove('shake'); void arena.offsetWidth; arena.classList.add('shake');
+            let bossImg = document.getElementById('boss-bg');
+            bossImg.classList.remove('flash-red'); void bossImg.offsetWidth; bossImg.classList.add('flash-red');
+
+            // ЦИФРЫ УРОНА
             let pop = document.createElement('div');
             pop.className = 'dmg-pop';
             pop.innerText = "-" + damage;
-            pop.style.left = (40 + Math.random() * 20) + "%"; 
-            pop.style.top = "35%";
+            pop.style.left = "50%"; pop.style.top = "40%";
             document.body.appendChild(pop);
             setTimeout(() => pop.remove(), 600);
+
+            // ДОБАВЛЕНИЕ В СТАТИСТИКУ
+            let stats = document.getElementById('stats-content');
+            let line = document.createElement('div');
+            line.className = 'stat-line';
+            line.innerHTML = `<b>${nick}</b>: нанес ${damage} урона (${skillNames[idx]})`;
+            stats.prepend(line);
 
             if (bossHP < 500) document.getElementById('boss-bg').src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true";
             
             if (bossHP <= 0) {
                 tg.showAlert("БОСС ПОВЕРЖЕН!");
+                score += 500;
                 resetBattle();
             }
             save();
@@ -214,7 +235,7 @@
 
         function changeNickname() {
             let newNick = prompt("Введите свой позывной:", nick);
-            if (newNick && newNick.length < 15) {
+            if (newNick) {
                 nick = newNick;
                 localStorage.setItem('playerNick', nick);
                 updateUI();
@@ -236,11 +257,11 @@
             document.getElementById('win-bosses').style.display = 'none';
             document.getElementById('battle-arena').style.display = 'flex';
             if (bossHP < 500) document.getElementById('boss-bg').src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true";
-            save();
+            updateUI();
         }
 
         function exitBattle() { document.getElementById('battle-arena').style.display = 'none'; }
-        function resetBattle() { bossHP = 1000; battleEndTime = 0; cds = [0, 0, 0, 0]; exitBattle(); save(); }
+        function resetBattle() { bossHP = 1000; battleEndTime = 0; cds = [0, 0, 0, 0]; document.getElementById('stats-content').innerHTML = ""; exitBattle(); save(); }
         function formatTime(ms) {
             let h = Math.floor(ms / 3600000).toString().padStart(2, '0');
             let m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
