@@ -5,199 +5,297 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #1c1c1c; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; user-select: none; }
+        body { background: #1a1a1a; color: white; text-align: center; font-family: 'Arial', sans-serif; margin: 0; overflow: hidden; user-select: none; }
         
         /* ВЕРХНЯЯ ПАНЕЛЬ */
-        .top-bar { 
-            display: flex; background: rgba(0,0,0,0.9); padding: 8px 5px; 
-            font-size: 11px; justify-content: space-around; border-bottom: 2px solid #f1c40f;
-            position: relative; z-index: 100;
-        }
-        .user-info { text-align: left; min-width: 70px; }
-        .stat-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .top-bar { display: flex; background: rgba(0,0,0,0.9); padding: 8px 5px; font-size: 11px; justify-content: space-around; border-bottom: 2px solid #f1c40f; position: relative; z-index: 100; }
+        .stat-item { display: flex; flex-direction: column; align-items: center; }
         .val { color: #f1c40f; font-weight: bold; font-size: 13px; }
 
-        /* ПРАВАЯ ПАНЕЛЬ НАВИГАЦИИ */
-        .right-nav {
-            position: absolute; right: 10px; top: 70px; display: flex; 
-            flex-direction: column; gap: 10px; z-index: 50;
-        }
-        .nav-btn {
-            width: 50px; height: 50px; background: rgba(44, 62, 80, 0.9); 
-            border: 2px solid #f1c40f; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-        }
-        .nav-btn:active { transform: scale(0.9); }
+        /* НАВИГАЦИЯ */
+        .right-nav { position: absolute; right: 10px; top: 70px; display: flex; flex-direction: column; gap: 10px; z-index: 50; }
+        .nav-btn { width: 50px; height: 50px; background: rgba(44, 62, 80, 0.9); border: 2px solid #f1c40f; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .nav-btn img { width: 80%; height: 80%; object-fit: contain; }
 
-        /* ГЛАВНЫЙ ГЕРОЙ (КАЗАРМА) */
+        /* ГЛАВНЫЙ ЭКРАН */
         #main-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         #char-img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* НИЖНЯЯ ПАНЕЛЬ (СОСЛУЖИВЦЫ) */
-        .bottom-panel {
-            position: absolute; bottom: 0; width: 100%; height: 110px;
-            background: rgba(0,0,0,0.85); display: flex; align-items: center; z-index: 60; border-top: 1px solid #555;
-        }
-        .friends-list { display: flex; overflow-x: auto; gap: 8px; width: 70%; padding: 0 10px; }
-        .friend-slot { min-width: 60px; height: 60px; background: #333; border: 2px solid #f1c40f; border-radius: 8px; overflow: hidden; }
+        /* ОКНА */
+        .window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; }
         
-        .voenkom-area { width: 30%; text-align: center; padding-right: 5px; }
-        .voenkom-btn { 
-            background: #c0392b; color: white; border: none; padding: 8px 5px; 
-            font-size: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;
-        }
+        /* ПАПКА С ДЕЛАМИ */
+        #win-bosses { background: #d2b48c url('https://www.transparenttextures.com/patterns/paper.png'); color: #3d2b1f; padding-top: 20px; overflow-y: auto; }
+        .boss-case { width: 90%; background: rgba(255,255,255,0.3); border: 1px solid #8b4513; margin-bottom: 15px; display: flex; padding: 10px; text-align: left; }
+        .boss-photo-frame { width: 100px; height: 120px; border: 1px solid #000; margin-right: 10px; background: #fff; }
+        .btn-start-battle { background: #f39c12; color: white; border: 1px solid #d35400; padding: 10px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        /* ОКНА ЛОКАЦИЙ */
-        .window { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(26, 26, 26, 0.98); z-index: 1000; display: none; 
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .win-content { width: 90%; }
-        .mission-card {
-            background: #333; margin: 10px 0; padding: 15px; border-radius: 10px;
-            border: 1px solid #f1c40f; display: flex; justify-content: space-between; align-items: center;
-        }
-        .close-btn { margin-top: 20px; color: #e74c3c; font-weight: bold; padding: 10px; border: 1px solid #e74c3c; border-radius: 5px; }
+        /* АРЕНА БОЯ */
+        #battle-arena { background: #000; z-index: 2000; display: none; }
+        #boss-bg { position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        
+        .boss-header { position: absolute; top: 15px; left: 15px; text-align: left; z-index: 10; }
+        .boss-name-label { font-size: 20px; font-weight: bold; text-shadow: 2px 2px #000; color: #fff; text-transform: uppercase; }
+        .hp-box { width: 180px; height: 18px; background: #333; border: 2px solid #fff; margin-top: 5px; border-radius: 4px; overflow: hidden; }
+        #boss-hp-fill { width: 100%; height: 100%; background: linear-gradient(to bottom, #e74c3c, #c0392b); transition: width 0.3s; }
+        #battle-timer { font-size: 16px; color: #f1c40f; font-weight: bold; margin-top: 5px; text-shadow: 1px 1px #000; }
+
+        /* ПАНЕЛЬ УДАРОВ */
+        .attack-panel { position: absolute; bottom: 120px; width: 100%; display: flex; justify-content: center; gap: 6px; z-index: 20; padding: 0 5px; }
+        .skill-slot { width: 23%; display: flex; flex-direction: column; align-items: center; }
+        .skill-btn { width: 100%; aspect-ratio: 1/1; border: 2px solid #f1c40f; border-radius: 8px; overflow: hidden; position: relative; background: #222; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .skill-btn img { width: 100%; height: 100%; object-fit: cover; }
+        .cooldown-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; }
+        .refresh-btn { font-size: 10px; background: #27ae60; border: 1px solid #1e8449; color: white; padding: 4px 0; margin-top: 5px; border-radius: 4px; width: 90%; font-weight: bold; }
+
+        /* ЛОГ УРОНА */
+        .damage-log { position: absolute; bottom: 15px; width: 92%; height: 90px; background: rgba(0,0,0,0.75); border: 1px solid #f1c40f; overflow-y: auto; font-size: 12px; text-align: left; padding: 8px; border-radius: 5px; }
+
+        .damage-pop { position: absolute; color: #ff3333; font-size: 45px; font-weight: bold; pointer-events: none; animation: fly 0.6s ease-out forwards; z-index: 3000; text-shadow: 2px 2px #000; }
+        @keyframes fly { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { transform: translateY(-120px) scale(1.4); opacity: 0; } }
+
+        .exit-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); border: 1px solid #fff; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 12px; z-index: 100; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div class="user-info">
-            <div id="nickname" onclick="changeNick()" style="color:#f1c40f; font-weight:bold;">Боец</div>
-            <div style="font-size:10px;">УРОВЕНЬ: <span id="level">1</span></div>
-        </div>
-        <div class="stat-item">
-            <img src="https://img.icons8.com/color/48/medallion.png" width="20">
-            <span class="val" id="score">0</span>
-        </div>
-        <div class="stat-item">
-            <img src="https://img.icons8.com/color/48/lightning-bolt.png" width="20">
-            <span class="val" id="energy">100</span>
-        </div>
-        <div class="stat-item">
-            <img src="https://img.icons8.com/color/48/cigarette.png" width="20">
-            <span class="val" id="cigs">10</span>
-        </div>
-        <div class="stat-item">
-            <img src="https://img.icons8.com/color/48/ruble.png" width="20">
-            <span class="val" id="money">100</span>
-        </div>
-        <div onclick="toggleMedia()"><img src="https://img.icons8.com/color/48/high-volume.png" width="20"></div>
+        <div class="stat-item"><img src="https://img.icons8.com/color/48/medallion.png" width="18"><span class="val" id="score">0</span></div>
+        <div class="stat-item"><img src="https://img.icons8.com/color/48/ruble.png" width="18"><span class="val" id="money">100</span></div>
     </div>
 
     <div class="right-nav">
-        <div class="nav-btn" onclick="showWin('bosses')"><img src="https://img.icons8.com/color/96/military-helmet.png" width="35"></div>
-        <div class="nav-btn" onclick="showWin('chipok')"><img src="https://img.icons8.com/color/96/tea-cup.png" width="35"></div>
-        <div class="nav-btn" onclick="showWin('album')"><img src="https://img.icons8.com/color/96/photo-album.png" width="35"></div>
-        <div class="nav-btn" onclick="showWin('tattoo')"><img src="https://img.icons8.com/color/96/tattoo-machine.png" width="35"></div>
-        <div class="nav-btn" onclick="showWin('help')"><img src="https://img.icons8.com/color/96/cardboard-box.png" width="35"></div>
-        <div class="nav-btn" onclick="showWin('missions')"><img src="https://img.icons8.com/color/96/map-marker--v1.png" width="35"></div>
-        <div class="nav-btn" onclick="showWin('plac')"><img src="https://img.icons8.com/color/96/combat-boots.png" width="35"></div>
-        <div class="nav-btn" onclick="closeWins()"><img src="https://img.icons8.com/color/96/barracks.png" width="35"></div>
+        <div class="nav-btn" onclick="showWin('bosses')"><img src="https://github.com/Kama-116/army-online/blob/main/boss.png?raw=true"></div>
+        <div class="nav-btn" onclick="closeWins()"><img src="https://img.icons8.com/color/96/barracks.png"></div>
     </div>
 
-    <div id="main-view">
-        <img id="char-img" src="https://raw.githubusercontent.com/Kama-116/army-online/9f579bfe3fe90a46980437c2063d2168b6ac5136/rank1.JPG" alt="Персонаж">
-    </div>
+    <div id="main-view"><img id="char-img" src="https://github.com/Kama-116/army-online/blob/main/rank1.JPG?raw=true"></div>
 
-    <div class="bottom-panel">
-        <div class="friends-list" id="friends">
-            <div class="friend-slot"><img src="https://via.placeholder.com/60/333/f1c40f?text=?" width="100%"></div>
-            <div class="friend-slot"><img src="https://via.placeholder.com/60/333/f1c40f?text=?" width="100%"></div>
-            <div class="friend-slot"><img src="https://via.placeholder.com/60/333/f1c40f?text=?" width="100%"></div>
-            <div class="friend-slot"><img src="https://via.placeholder.com/60/333/f1c40f?text=?" width="100%"></div>
-        </div>
-        <div class="voenkom-area">
-            <div style="font-size: 9px; margin-bottom: 5px;">ЗАЛОЖИТЬ КОРЕША</div>
-            <button class="voenkom-btn" onclick="inviteFriend()">ВОЕНКОМУ</button>
-        </div>
-    </div>
-
-    <div id="win-missions" class="window">
-        <h2>КОМАНДИРОВКИ</h2>
-        <div class="win-content">
-            <div class="mission-card">
-                <span>СВО</span>
-                <button onclick="doMission(10, 50)">10 ⚡</button>
-            </div>
-            <div class="mission-card">
-                <span>СИРИЯ</span>
-                <button onclick="doMission(20, 120)">20 ⚡</button>
-            </div>
-            <div class="mission-card">
-                <span>АФРИКА</span>
-                <button onclick="doMission(30, 200)">30 ⚡</button>
+    <div id="win-bosses" class="window">
+        <h2 style="text-decoration: underline;">ЛИЧНЫЕ ДЕЛА</h2>
+        <div class="boss-case">
+            <div class="boss-photo-frame"><img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" style="width:100%"></div>
+            <div style="flex-grow:1">
+                <b style="font-size: 18px;">Ефрейтор Боков</b><br>
+                <span>Сложность: <span style="color: green;">Низкая</span></span><br><br>
+                <button class="btn-start-battle" id="start-btn-text" onclick="startBattle()">АТАКОВАТЬ</button>
             </div>
         </div>
-        <div class="close-btn" onclick="closeWins()">НАЗАД В КАЗАРМУ</div>
+        <div onclick="closeWins()" style="margin-top:20px; font-weight: bold; cursor: pointer;">ЗАКРЫТЬ</div>
     </div>
 
-    <div id="win-chipok" class="window">
-        <h2>ЧИПОК</h2>
-        <p>Здесь можно купить ништяки за рубли.</p>
-        <div class="close-btn" onclick="closeWins()">ВЕРНУТЬСЯ</div>
+    <div id="battle-arena" class="window">
+        <img id="boss-bg" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
+        
+        <div class="boss-header">
+            <div class="boss-name-label">Ефрейтор Боков</div>
+            <div class="hp-box"><div id="boss-hp-fill"></div></div>
+            <div id="battle-timer">08:00:00</div>
+        </div>
+
+        <button class="exit-btn" onclick="exitBattle()">В КАЗАРМУ</button>
+
+        <div class="attack-panel">
+            <div class="skill-slot">
+                <div class="skill-btn" onclick="useSkill(0)"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"><div class="cooldown-overlay" id="cd-0"></div></div>
+                <button class="refresh-btn" onclick="resetCD(0)">3 руб.</button>
+            </div>
+            <div class="skill-slot">
+                <div class="skill-btn" onclick="useSkill(1)"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"><div class="cooldown-overlay" id="cd-1"></div></div>
+                <button class="refresh-btn" onclick="resetCD(1)">3 руб.</button>
+            </div>
+            <div class="skill-slot">
+                <div class="skill-btn" onclick="useSkill(2)"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"><div class="cooldown-overlay" id="cd-2"></div></div>
+                <button class="refresh-btn" onclick="resetCD(2)">3 руб.</button>
+            </div>
+            <div class="skill-slot">
+                <div class="skill-btn" onclick="useSkill(3)"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"><div class="cooldown-overlay" id="cd-3"></div></div>
+                <button class="refresh-btn" onclick="resetCD(3)">3 руб.</button>
+            </div>
+        </div>
+
+        <div class="damage-log" id="log">
+            <div style="color:#f1c40f; border-bottom:1px solid #555; margin-bottom: 5px;">ЖУРНАЛ БОЯ:</div>
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Состояние
+        // Данные игрока
         let score = parseInt(localStorage.getItem('score')) || 0;
         let money = parseInt(localStorage.getItem('money')) || 100;
-        let nick = localStorage.getItem('nick') || "Боец";
-        let energy = 100;
+        let nickname = localStorage.getItem('nick') || "Боец";
+        
+        // Данные Босса
+        let bossMaxHP = 1000;
+        let bossHP = parseInt(localStorage.getItem('bossHP')) || bossMaxHP;
+        let battleEndTime = parseInt(localStorage.getItem('battleEndTime')) || 0;
+        
+        // Кулдауны ударов
+        let cds = JSON.parse(localStorage.getItem('skillCDs')) || [0, 0, 0, 0];
+        let skills = [
+            { name: "в голову", dmg: 20 },
+            { name: "под зад", dmg: 15 },
+            { name: "в глаза", dmg: 10 },
+            { name: "в грудь", dmg: 25 }
+        ];
 
-        function updateUI() {
+        function startBattle() {
+            if (battleEndTime === 0) {
+                battleEndTime = Date.now() + (8 * 60 * 60 * 1000); // 8 часов
+                localStorage.setItem('battleEndTime', battleEndTime);
+            }
+            document.getElementById('win-bosses').style.display = 'none';
+            document.getElementById('battle-arena').style.display = 'flex';
+            checkBossPhase();
+        }
+
+        function useSkill(idx) {
+            if (Date.now() < cds[idx]) {
+                tg.showAlert("Удар еще не готов!");
+                return;
+            }
+
+            bossHP -= skills[idx].dmg;
+            cds[idx] = Date.now() + (2 * 60 * 60 * 1000); // 2 часа
+            
+            showDamageAnim(skills[idx].dmg);
+            addLog(`[${nickname}] ударил ${skills[idx].name}: -${skills[idx].dmg} HP`);
+            
+            if (bossHP <= 0) {
+                winBattle();
+            } else {
+                checkBossPhase();
+                saveAll();
+                updateBattleUI();
+            }
+            tg.HapticFeedback.impactOccurred('heavy');
+        }
+
+        function checkBossPhase() {
+            let img = document.getElementById('boss-bg');
+            if (bossHP < 500) {
+                img.src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true";
+            } else {
+                img.src = "https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true";
+            }
+        }
+
+        function resetCD(idx) {
+            if (money >= 3) {
+                money -= 3;
+                cds[idx] = 0;
+                saveAll();
+                updateBattleUI();
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                tg.showAlert("Не хватает рублей!");
+            }
+        }
+
+        function updateBattleUI() {
             document.getElementById('score').innerText = score;
             document.getElementById('money').innerText = money;
-            document.getElementById('nickname').innerText = nick;
-            document.getElementById('energy').innerText = energy;
+            
+            // HP
+            let hpPercent = (bossHP / bossMaxHP) * 100;
+            document.getElementById('boss-hp-fill').style.width = Math.max(0, hpPercent) + "%";
+
+            // Таймер боя
+            let now = Date.now();
+            let timeLeft = battleEndTime - now;
+            if (timeLeft <= 0 && battleEndTime !== 0) {
+                failBattle();
+            } else if (battleEndTime !== 0) {
+                document.getElementById('battle-timer').innerText = formatTime(timeLeft);
+            }
+
+            // Кулдауны кнопок
+            cds.forEach((time, i) => {
+                let overlay = document.getElementById('cd-' + i);
+                if (now < time) {
+                    overlay.style.display = 'flex';
+                    overlay.innerText = formatTime(time - now);
+                } else {
+                    overlay.style.display = 'none';
+                }
+            });
+        }
+
+        function formatTime(ms) {
+            let h = Math.floor(ms / 3600000).toString().padStart(2, '0');
+            let m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
+            let s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        function winBattle() {
+            tg.showAlert("ПОБЕДА! Ефрейтор Боков в нокауте!");
+            score += 1000;
+            money += 20;
+            resetBattleData();
+            exitBattle();
+        }
+
+        function failBattle() {
+            tg.showAlert("ВРЕМЯ ВЫШЛО! Босс ушел безнаказанным.");
+            resetBattleData();
+            exitBattle();
+        }
+
+        function resetBattleData() {
+            bossHP = 1000;
+            battleEndTime = 0;
+            cds = [0, 0, 0, 0];
+            saveAll();
+        }
+
+        function saveAll() {
+            localStorage.setItem('score', score);
+            localStorage.setItem('money', money);
+            localStorage.setItem('bossHP', bossHP);
+            localStorage.setItem('battleEndTime', battleEndTime);
+            localStorage.setItem('skillCDs', JSON.stringify(cds));
+        }
+
+        function addLog(text) {
+            let log = document.getElementById('log');
+            let entry = document.createElement('div');
+            entry.innerText = text;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function showDamageAnim(val) {
+            let p = document.createElement('div');
+            p.className = 'damage-pop';
+            p.innerText = "-" + val;
+            p.style.left = "45%"; p.style.top = "40%";
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+
+        function exitBattle() {
+            document.getElementById('battle-arena').style.display = 'none';
+            updateBattleUI();
         }
 
         function showWin(id) {
             closeWins();
-            let win = document.getElementById('win-' + id);
-            if(win) win.style.display = 'flex';
+            document.getElementById('win-' + id).style.display = 'flex';
+            if (id === 'bosses' && battleEndTime > 0) {
+                document.getElementById('start-btn-text').innerText = "ПРОДОЛЖИТЬ БОЙ";
+            }
         }
 
         function closeWins() {
             document.querySelectorAll('.window').forEach(w => w.style.display = 'none');
         }
 
-        function doMission(cost, reward) {
-            if (energy >= cost) {
-                energy -= cost;
-                score += reward;
-                localStorage.setItem('score', score);
-                updateUI();
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert("Миссия выполнена! Получено " + reward + " авторитета.");
-            } else {
-                tg.showAlert("Мало энергии! Нужно подождать.");
-            }
-        }
-
-        function changeNick() {
-            if (money >= 100) {
-                let n = prompt("Смена позывного (100 руб):");
-                if(n) {
-                    money -= 100; nick = n;
-                    localStorage.setItem('nick', nick);
-                    localStorage.setItem('money', money);
-                    updateUI();
-                }
-            } else { tg.showAlert("Мало рублей!"); }
-        }
-
-        function inviteFriend() {
-            tg.showAlert("Приглашение отправлено! (Здесь будет ваша ссылка)");
-        }
-
-        updateUI();
+        setInterval(updateBattleUI, 1000);
+        updateBattleUI();
     </script>
 </body>
 </html>
