@@ -10,7 +10,7 @@
             font-family: 'Arial Narrow', sans-serif; margin: 0; overflow: hidden; user-select: none;
         }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ (TOP BAR) */
+        /* ШАПКА В СТИЛЕ ТЮРЯГИ */
         .header-panel {
             display: flex; background: linear-gradient(to bottom, #5d4a37, #2a1f14);
             border-bottom: 2px solid #f1c40f; padding: 4px; height: 50px;
@@ -20,10 +20,10 @@
         .player-info {
             background: linear-gradient(to bottom, #ff9d00, #ff5e00);
             border: 1px solid #fff; border-radius: 4px; padding: 2px 10px;
-            text-align: left; min-width: 130px; box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            text-align: left; min-width: 130px; cursor: pointer;
         }
-        .player-name { font-weight: bold; font-size: 13px; color: #000; text-shadow: 0 1px 0 rgba(255,255,255,0.3); }
-        .exp-bar { background: #333; height: 5px; border: 1px solid #000; margin-top: 2px; border-radius: 2px; overflow: hidden; }
+        .player-name { font-weight: bold; font-size: 13px; color: #000; }
+        .exp-bar { background: #333; height: 5px; border: 1px solid #000; margin-top: 2px; }
         .exp-fill { background: #00ff00; width: 45%; height: 100%; }
 
         .stats-container { display: flex; gap: 4px; }
@@ -34,27 +34,44 @@
         .stat-item img { width: 16px; height: 16px; }
         .stat-val { font-size: 14px; font-weight: bold; color: #f1c40f; }
 
-        /* ЛЕВАЯ ПАНЕЛЬ (МЕДАЛИ/НЫЧКИ) */
-        .left-medals {
-            position: absolute; left: 10px; top: 70px; display: flex;
+        /* ПРАВАЯ НАВИГАЦИЯ */
+        .right-nav {
+            position: absolute; right: 10px; top: 70px; display: flex;
             flex-direction: column; gap: 10px; z-index: 50;
         }
-        .medal-icon {
-            width: 48px; height: 48px; background: radial-gradient(#888, #222);
-            border: 2px solid #f1c40f; border-radius: 50%;
+        .nav-btn {
+            width: 50px; height: 50px; background: rgba(44, 62, 80, 0.9);
+            border: 2px solid #f1c40f; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 3px 3px 6px rgba(0,0,0,0.7);
         }
-        .medal-icon img { width: 32px; height: 32px; }
+        .nav-btn img { width: 35px; height: 35px; }
 
-        /* ПРАВАЯ ПАНЕЛЬ (ЗАДАНИЯ/СРОЧНИКИ) */
-        .tasks-panel {
-            position: absolute; right: 5px; top: 120px; width: 140px;
-            background: rgba(60, 40, 20, 0.8); border: 1px solid #f1c40f;
-            border-radius: 5px; padding: 5px; text-align: left; z-index: 50;
+        /* ОКНА */
+        .window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; }
+        #win-bosses { background: #d2b48c; padding-top: 20px; color: #3d2b1f; }
+
+        /* АРЕНА БОЯ */
+        #battle-arena { background: #000; z-index: 2000; justify-content: center; }
+        #boss-img-war { max-width: 90%; max-height: 55%; object-fit: contain; margin-top: 50px; }
+        
+        /* КУЛДАУНЫ УДАРОВ */
+        .attack-panel { 
+            position: absolute; bottom: 0; width: 100%; display: flex; 
+            justify-content: center; gap: 8px; background: rgba(0,0,0,0.9); 
+            padding: 15px 0; border-top: 2px solid #f1c40f; z-index: 2010;
         }
-        .tasks-title { color: #f1c40f; font-size: 11px; font-weight: bold; border-bottom: 1px solid #f1c40f; margin-bottom: 5px; }
-        .task-item { font-size: 10px; color: #fff; margin-bottom: 4px; border-bottom: 1px dashed #555; padding-bottom: 2px; }
+        .skill-btn { 
+            width: 65px; height: 65px; border: 2px solid #f1c40f; 
+            border-radius: 10px; background: #000; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .skill-btn img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
+        .cooldown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: bold; color: #fff;
+        }
 
         /* НИЖНЯЯ ПАНЕЛЬ (КОРЕША) */
         .bottom-friends {
@@ -67,58 +84,42 @@
             min-width: 60px; height: 75px; background: #222; border: 1px solid #f1c40f;
             border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .friend-card img { width: 45px; height: 45px; border-radius: 3px; border: 1px solid #444; }
+        .friend-card img { width: 45px; height: 45px; border-radius: 3px; }
         .friend-name { font-size: 9px; margin-top: 3px; color: #ccc; }
 
         /* ПЕРСОНАЖ */
-        #main-view {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center; z-index: 10;
-        }
-        #char-img { max-width: 80%; max-height: 65%; filter: drop-shadow(0 0 20px #000); }
+        #main-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        #char-img { max-width: 85%; max-height: 65%; }
 
-        .btn-action {
-            background: #f1c40f; color: #000; border: none; padding: 5px 10px;
-            font-weight: bold; border-radius: 3px; font-size: 10px; margin-top: 5px; cursor: pointer;
-        }
+        .exit-btn { position: absolute; top: 15px; right: 15px; background: #c0392b; color: #fff; border: 1px solid #fff; padding: 5px 10px; z-index: 2020; }
     </style>
 </head>
 <body>
 
     <div class="header-panel">
-        <div class="player-info" onclick="tg.showAlert('Твой профиль')">
-            <div class="player-name" id="p-name">Рядовой Кама</div>
+        <div class="player-info" onclick="changeNickname()">
+            <div class="player-name" id="nick-top">Боец</div>
             <div class="exp-bar"><div class="exp-fill"></div></div>
         </div>
         <div class="stats-container">
             <div class="stat-item">
                 <img src="https://img.icons8.com/color/48/military-medal.png">
-                <span class="stat-val" id="val-score">34640</span>
-            </div>
-            <div class="stat-item">
-                <img src="https://img.icons8.com/color/48/lightning-bolt.png">
-                <span class="stat-val">10</span>
+                <span class="stat-val" id="score-top">0</span>
             </div>
             <div class="stat-item">
                 <img src="https://img.icons8.com/color/48/ruble.png">
-                <span class="stat-val" id="val-money">100</span>
+                <span class="stat-val" id="money-top">100</span>
             </div>
         </div>
     </div>
 
-    <div class="left-medals">
-        <div class="medal-icon"><img src="https://img.icons8.com/color/96/medal2.png"></div>
-        <div class="medal-icon"><img src="https://img.icons8.com/color/48/shield.png"></div>
-        <div class="medal-icon"><img src="https://img.icons8.com/color/48/military-helmet.png"></div>
-    </div>
-
-    <div class="tasks-panel">
-        <div class="tasks-title">СПИСОК ЗАДАЧ:</div>
-        <div class="task-item">1. Чистка картошки</div>
-        <div class="task-item">2. Наряд вне очереди</div>
-        <div class="task-item">3. Помыть плац</div>
-        <div class="task-item">4. Собрать сигареты</div>
-        <button class="btn-action">ВЫПОЛНИТЬ</button>
+    <div class="right-nav">
+        <div class="nav-btn" onclick="showWin('bosses')">
+            <img src="https://github.com/Kama-116/army-online/blob/main/boss.png?raw=true">
+        </div>
+        <div class="nav-btn" onclick="closeWins()">
+            <img src="https://img.icons8.com/color/96/barracks.png">
+        </div>
     </div>
 
     <div id="main-view">
@@ -126,44 +127,124 @@
     </div>
 
     <div class="bottom-friends">
-        <div class="friend-card">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=1">
-            <div class="friend-name">Димон</div>
+        <div class="friend-card" onclick="inviteFriend()" style="border: 2px dashed #ff4d4d; background: rgba(255, 77, 77, 0.1); min-width: 80px;">
+            <img src="https://img.icons8.com/color/96/marching-soldiers.png" style="filter: grayscale(0.5);">
+            <div class="friend-name" style="color: #ff4d4d; font-weight: bold; text-align: center;">ЗАЛОЖИТЬ<br>КОРЕША</div>
         </div>
-        <div class="friend-card">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=2">
-            <div class="friend-name">Серый</div>
+        <div class="friend-card"><img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=1"><div class="friend-name">Димон</div></div>
+        <div class="friend-card"><img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=2"><div class="friend-name">Серый</div></div>
+    </div>
+
+    <div id="battle-arena" class="window">
+        <button class="exit-btn" onclick="exitBattle()">СБЕЖАТЬ</button>
+        <img id="boss-img-war" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
+        
+        <div class="attack-panel">
+            <div class="skill-btn" onclick="handleAttack(0, 'в голову')">
+                <img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true">
+                <div class="cooldown-overlay" id="cd-0"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
+            </div>
+            <div class="skill-btn" onclick="handleAttack(1, 'под зад')">
+                <img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true">
+                <div class="cooldown-overlay" id="cd-1"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
+            </div>
+            <div class="skill-btn" onclick="handleAttack(2, 'в глаза')">
+                <img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true">
+                <div class="cooldown-overlay" id="cd-2"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
+            </div>
+            <div class="skill-btn" onclick="handleAttack(3, 'в грудь')">
+                <img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true">
+                <div class="cooldown-overlay" id="cd-3"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
+            </div>
         </div>
-        <div class="friend-card">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=3">
-            <div class="friend-name">Жека</div>
+    </div>
+
+    <div id="win-bosses" class="window">
+        <h2>ЛИЧНЫЕ ДЕЛА</h2>
+        <div style="background: rgba(255,255,255,0.4); padding: 15px; display: flex; align-items: center; width: 90%;">
+            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" width="80">
+            <div style="margin-left: 15px; text-align: left;">
+                <b>Ефрейтор Боков</b><br>
+                <button onclick="startBattle()" style="margin-top: 10px; background: #000; color: #fff; padding: 5px 15px;">АТАКОВАТЬ</button>
+            </div>
         </div>
-        <div class="friend-card">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=4">
-            <div class="friend-name">Миха</div>
-        </div>
-        <div class="friend-card">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=5">
-            <div class="friend-name">Вано</div>
-        </div>
-        <div class="friend-card">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=6">
-            <div class="friend-name">Тоха</div>
-        </div>
+        <button onclick="closeWins()" style="margin-top: 20px;">ЗАКРЫТЬ</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Обновление данных
-        function sync() {
-            document.getElementById('val-score').innerText = localStorage.getItem('score') || 0;
-            document.getElementById('val-money').innerText = localStorage.getItem('money') || 100;
-            document.getElementById('p-name').innerText = localStorage.getItem('playerNick') || "Рядовой Кама";
+        let score = parseInt(localStorage.getItem('score')) || 0;
+        let money = parseInt(localStorage.getItem('money')) || 100;
+        let nick = localStorage.getItem('playerNick') || "Боец";
+        let cooldowns = JSON.parse(localStorage.getItem('cd_times')) || [0, 0, 0, 0];
+        let bossHP = 1000;
+
+        function updateUI() {
+            document.getElementById('score-top').innerText = score;
+            document.getElementById('money-top').innerText = money;
+            document.getElementById('nick-top').innerText = nick;
         }
 
-        sync();
+        // ПРИГЛАШЕНИЕ (ЗАЛОЖИТЬ КОРЕША)
+        function inviteFriend() {
+            const botUrl = "https://t.me/YOUR_BOT_USERNAME"; // Твой бот
+            const text = "Служи со мной в Army Online! Помоги завалить Бокова!";
+            
+            tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`);
+            
+            // Награда за "донос"
+            score += 500;
+            save();
+            updateUI();
+            tg.showAlert("Вы заложили кореша! +500 авторитета начислено.");
+        }
+
+        function handleAttack(idx, name) {
+            let now = Date.now();
+            if (now < cooldowns[idx]) {
+                if (money >= 3 && confirm("Сбросить за 3 рубля?")) {
+                    money -= 3; cooldowns[idx] = 0; save(); updateUI();
+                }
+                return;
+            }
+            bossHP -= [35, 25, 20, 45][idx];
+            cooldowns[idx] = now + (2 * 60 * 60 * 1000);
+            if (bossHP <= 0) { score += 1000; bossHP = 1000; exitBattle(); }
+            save(); updateUI();
+        }
+
+        setInterval(() => {
+            let now = Date.now();
+            for (let i = 0; i < 4; i++) {
+                let ov = document.getElementById('cd-' + i);
+                if (ov && now < cooldowns[i]) {
+                    ov.style.display = 'flex';
+                    let d = cooldowns[i] - now;
+                    let h = Math.floor(d/3600000), m = Math.floor((d%3600000)/60000), s = Math.floor((d%60000)/1000);
+                    ov.querySelector('span').innerText = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                } else if (ov) { ov.style.display = 'none'; }
+            }
+        }, 1000);
+
+        function changeNickname() {
+            let p = prompt("Новый позывной:", nick);
+            if (p) { nick = p; save(); updateUI(); }
+        }
+
+        function startBattle() { closeWins(); document.getElementById('battle-arena').style.display = 'flex'; }
+        function exitBattle() { document.getElementById('battle-arena').style.display = 'none'; }
+        function showWin(id) { document.getElementById('win-' + id).style.display = 'flex'; }
+        function closeWins() { document.querySelectorAll('.window').forEach(w => w.style.display = 'none'); }
+        function save() {
+            localStorage.setItem('score', score);
+            localStorage.setItem('money', money);
+            localStorage.setItem('playerNick', nick);
+            localStorage.setItem('cd_times', JSON.stringify(cooldowns));
+        }
+
+        updateUI();
     </script>
 </body>
 </html>
