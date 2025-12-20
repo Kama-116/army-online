@@ -54,7 +54,7 @@
         .shop-price { color: #2ecc71; font-weight: bold; }
         .buy-btn { background: #e67e22; border: none; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold; }
 
-        /* ЛИЧНОЕ ДЕЛО (ВОЗВРАТ СТИЛЯ) */
+        /* ЛИЧНОЕ ДЕЛО */
         .folder-case {
             background: #e3d5b8; border: 3px solid #3d2b1f; border-left: 15px solid #3d2b1f;
             padding: 20px; width: 85%; color: #3d2b1f; text-align: left; position: relative;
@@ -66,19 +66,21 @@
         .hp-container { width: 80%; height: 20px; background: #222; border: 2px solid #fff; border-radius: 10px; margin: 10px 0; position: relative; overflow: hidden; }
         #hp-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0000, #990000); transition: width 0.3s; }
         #hp-txt { position: absolute; width: 100%; text-align: center; top: 0; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
+        
+        #boss-bubble {
+            background: white; color: black; padding: 5px 10px; border-radius: 10px;
+            font-size: 12px; font-weight: bold; margin-bottom: 5px; opacity: 0; transition: 0.3s;
+            position: relative; border: 2px solid #333; z-index: 2001;
+        }
+
         #boss-img-war { width: 220px; height: auto; border: 2px solid #444; }
 
-        /* ИКОНКИ УДАРОВ (МЕНЬШЕ И ПРОЗРАЧНЕЕ) */
         .attack-grid { display: flex; gap: 8px; margin: 10px 0; justify-content: center; flex-wrap: wrap; width: 95%; }
-        .skill-btn { 
-            width: 55px; height: 55px; border: 2px solid #f1c40f; border-radius: 10px; 
-            background: none; position: relative; overflow: hidden; 
-        }
+        .skill-btn { width: 55px; height: 55px; border: 2px solid #f1c40f; border-radius: 10px; background: none; position: relative; overflow: hidden; }
         .skill-btn img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
         .skill-btn.locked { opacity: 0.2; filter: grayscale(1); border-color: #555; }
         .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; }
 
-        /* ТАБЛИЦА ЛИДЕРОВ */
         .damage-leaders { width: 90%; background: rgba(40,40,40,0.8); border: 1px solid #444; border-radius: 5px; padding: 10px; margin-top: 10px; }
         .leader-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #333; padding: 3px 0; }
         
@@ -153,12 +155,8 @@
 
     <div id="battle-arena" class="window">
         <button onclick="exitBattle()" style="position:absolute; top:10px; right:10px; background:red; border:none; color:white; padding:8px; border-radius:50%;">X</button>
-        
-        <div class="hp-container">
-            <div id="hp-fill"></div>
-            <div id="hp-txt">1000 / 1000</div>
-        </div>
-        
+        <div id="boss-bubble">Ты что творишь, салага?</div>
+        <div class="hp-container"><div id="hp-fill"></div><div id="hp-txt">1000 / 1000</div></div>
         <img id="boss-img-war" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
 
         <div class="attack-grid">
@@ -173,7 +171,6 @@
             <div id="slot-bomb" class="skill-btn locked" onclick="useSpecial('bomb', 200)"><img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_928plj928plj928p.png?raw=true"></div>
             <div id="slot-knife" class="skill-btn locked" onclick="useSpecial('knife', 200)"><img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_adehc5adehc5adeh.png?raw=true"></div>
         </div>
-
         <div class="damage-leaders" id="leaders-list"></div>
     </div>
 
@@ -185,8 +182,10 @@
         let cooldowns = JSON.parse(localStorage.getItem('cd_times')) || [0, 0, 0, 0];
         let myTotalDmg = parseInt(localStorage.getItem('myTotalDmg')) || 0;
         let lastBonus = localStorage.getItem('lastBonus') || 0;
-        let bossHP = 1000;
+        let bossHP = parseInt(localStorage.getItem('bossHP')) || 1000;
         let nick = localStorage.getItem('playerNick') || "Боец";
+
+        const bossQuotes = ["Ты что творишь, салага?", "Мимо кассы!", "Ай, больно же!", "Сам напросился!", "Щас в наряд пойдешь!"];
 
         function updateUI() {
             document.getElementById('score-top').innerText = score;
@@ -201,7 +200,6 @@
             document.getElementById('slot-knuckles').classList.toggle('locked', inventory.knuckles <= 0);
             document.getElementById('slot-bomb').classList.toggle('locked', inventory.bomb <= 0);
             document.getElementById('slot-knife').classList.toggle('locked', inventory.knife <= 0);
-            
             document.getElementById('leaders-list').innerHTML = `<div class="leader-row"><span>1. ${nick} (Вы)</span><span>${myTotalDmg}</span></div>`;
             
             let now = Date.now();
@@ -209,10 +207,8 @@
         }
 
         function buyWeapon(type, price) {
-            if (money >= price) {
-                money -= price; inventory[type]++;
-                save(); tg.showAlert("Куплено!"); updateUI();
-            } else tg.showAlert("Мало денег!");
+            if (money >= price) { money -= price; inventory[type]++; save(); tg.showAlert("Куплено!"); updateUI(); } 
+            else tg.showAlert("Мало денег!");
         }
 
         function buyFood(price) {
@@ -226,11 +222,17 @@
 
         function handleAttack(idx) {
             let now = Date.now();
-            if (now < cooldowns[idx]) return;
+            if (now < cooldowns[idx]) {
+                if (confirm("Сбросить кулдаун за 3 рубля?")) {
+                    if (money >= 3) {
+                        money -= 3; cooldowns[idx] = 0; save(); updateUI();
+                    } else tg.showAlert("Недостаточно рублей!");
+                }
+                return;
+            }
             let dmg = [40, 30, 25, 50][idx];
             cooldowns[idx] = now + (2 * 60 * 60 * 1000);
-            applyHit(dmg);
-            save(); updateUI();
+            applyHit(dmg); save(); updateUI();
         }
 
         function applyHit(dmg) {
@@ -239,6 +241,11 @@
             bossHP = Math.max(0, bossHP - dmg);
             myTotalDmg += dmg;
             
+            let bubble = document.getElementById('boss-bubble');
+            bubble.innerText = bossQuotes[Math.floor(Math.random() * bossQuotes.length)];
+            bubble.style.opacity = 1;
+            setTimeout(() => { bubble.style.opacity = 0; }, 1500);
+
             let popup = document.createElement('div');
             popup.className = 'dmg-popup'; popup.innerText = `-${dmg}`;
             popup.style.left = "45%"; popup.style.top = "30%";
@@ -247,8 +254,8 @@
 
             if (bossHP <= 0) {
                 score += 500; money += 5; bossHP = 1000;
-                exitBattle(); tg.showAlert("БОСС ПОВЕРЖЕН!");
-            }
+                save(); exitBattle(); tg.showAlert("БОСС ПОВЕРЖЕН!");
+            } else save();
             tg.HapticFeedback.impactOccurred('heavy');
         }
 
@@ -259,6 +266,7 @@
             localStorage.setItem('cd_times', JSON.stringify(cooldowns));
             localStorage.setItem('myTotalDmg', myTotalDmg);
             localStorage.setItem('playerNick', nick);
+            localStorage.setItem('bossHP', bossHP);
         }
 
         function showWin(id) { document.getElementById('win-' + id).style.display = 'flex'; }
