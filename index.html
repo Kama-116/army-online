@@ -85,6 +85,21 @@
         .leader-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #333; padding: 3px 0; }
         
         .dmg-popup { position: absolute; color: yellow; font-size: 30px; font-weight: bold; animation: flyUp 0.6s forwards; z-index: 3000; pointer-events: none; }
+        
+        /* ОКНО ПОБЕДЫ */
+        .victory-card {
+            background: #1a1a1a; border: 4px solid #f1c40f; border-radius: 15px;
+            padding: 20px; width: 80%; text-align: center; position: relative;
+        }
+        .boss-dead-container { position: relative; display: inline-block; margin: 15px 0; }
+        .cross-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(45deg, transparent 45%, red 45%, red 55%, transparent 55%),
+                linear-gradient(-45deg, transparent 45%, red 45%, red 55%, transparent 55%);
+            pointer-events: none;
+        }
+
         @keyframes flyUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
     </style>
 </head>
@@ -144,6 +159,7 @@
             <div style="font-family: 'Courier New', monospace; font-size: 13px;">
                 <b>ОБЪЕКТ:</b> Ефрейтор Боков<br>
                 <b>СЛОЖНОСТЬ:</b> <span style="color:#27ae60">ЛЕГКАЯ</span><br>
+                <b>ПОБЕД:</b> <span id="boss-wins-count" style="font-weight:bold; color:red;">0</span><br>
                 <b>ОСОБЕННОСТИ:</b> Хитер, крадет сигареты.
             </div>
             <div style="clear:both; padding-top: 20px;">
@@ -174,6 +190,19 @@
         <div class="damage-leaders" id="leaders-list"></div>
     </div>
 
+    <div id="win-victory" class="window" style="justify-content: center; background: rgba(0,0,0,0.95);">
+        <div class="victory-card">
+            <h1 style="color: #f1c40f; margin: 0;">ПОЗДРАВЛЯЮ!</h1>
+            <p style="font-size: 18px; margin: 5px 0;">БОСС ПОВЕРЖЕН</p>
+            <div class="boss-dead-container">
+                <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" style="width: 150px; border: 2px solid red;">
+                <div class="cross-overlay"></div>
+            </div>
+            <div style="font-size: 20px; color: #2ecc71; font-weight: bold; margin-bottom: 15px;">+500 АВТОРИТЕТА</div>
+            <button onclick="closeWins()" style="background: #27ae60; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; width: 100%;">ПРОДОЛЖИТЬ</button>
+        </div>
+    </div>
+
     <script>
         let tg = window.Telegram.WebApp;
         let score = parseInt(localStorage.getItem('score')) || 0;
@@ -183,6 +212,7 @@
         let myTotalDmg = parseInt(localStorage.getItem('myTotalDmg')) || 0;
         let lastBonus = localStorage.getItem('lastBonus') || 0;
         let bossHP = parseInt(localStorage.getItem('bossHP')) || 1000;
+        let bossVictories = parseInt(localStorage.getItem('bossVictories')) || 0;
         let nick = localStorage.getItem('playerNick') || "Боец";
 
         const bossQuotes = ["Ты что творишь, салага?", "Мимо кассы!", "Ай, больно же!", "Сам напросился!", "Щас в наряд пойдешь!"];
@@ -193,6 +223,7 @@
             document.getElementById('nick-top').innerText = nick;
             document.getElementById('hp-txt').innerText = bossHP + " / 1000";
             document.getElementById('hp-fill').style.width = (bossHP / 10) + "%";
+            document.getElementById('boss-wins-count').innerText = bossVictories;
             
             let bImg = document.getElementById('boss-img-war');
             bImg.src = bossHP <= 500 ? "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true" : "https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true";
@@ -253,8 +284,10 @@
             setTimeout(() => popup.remove(), 600);
 
             if (bossHP <= 0) {
-                score += 500; money += 5; bossHP = 1000;
-                save(); exitBattle(); tg.showAlert("БОСС ПОВЕРЖЕН!");
+                score += 500; money += 5; bossHP = 1000; bossVictories++;
+                save(); 
+                exitBattle();
+                showWin('victory');
             } else save();
             tg.HapticFeedback.impactOccurred('heavy');
         }
@@ -267,9 +300,10 @@
             localStorage.setItem('myTotalDmg', myTotalDmg);
             localStorage.setItem('playerNick', nick);
             localStorage.setItem('bossHP', bossHP);
+            localStorage.setItem('bossVictories', bossVictories);
         }
 
-        function showWin(id) { document.getElementById('win-' + id).style.display = 'flex'; }
+        function showWin(id) { document.getElementById('win-' + id).style.display = 'flex'; updateUI(); }
         function closeWins() { document.querySelectorAll('.window').forEach(w => w.style.display = 'none'); }
         function startBattle() { closeWins(); document.getElementById('battle-arena').style.display = 'flex'; updateUI(); }
         function exitBattle() { document.getElementById('battle-arena').style.display = 'none'; }
