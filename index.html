@@ -40,40 +40,44 @@
         /* ОКНА */
         .window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; }
 
-        /* ЛИЧНОЕ ДЕЛО */
-        #win-bosses { background: rgba(0,0,0,0.9); justify-content: center; }
+        /* ЛИЧНОЕ ДЕЛО / ОКНО ПОБЕДЫ */
         .folder-case {
             background: #e3d5b8; border: 3px solid #3d2b1f; border-left: 15px solid #3d2b1f;
-            padding: 20px; width: 85%; color: #3d2b1f; text-align: left;
+            padding: 20px; width: 85%; color: #3d2b1f; text-align: left; position: relative;
         }
-        .boss-photo-large { width: 120px; border: 2px solid #3d2b1f; float: left; margin-right: 15px; }
-
-        /* АРЕНА БОЯ - ОБНОВЛЕННЫЙ СТИЛЬ */
-        #battle-arena { background: #000; z-index: 2000; overflow-y: auto; display: none; flex-direction: column; align-items: center; padding-top: 20px; }
+        .boss-photo-container { position: relative; width: 120px; float: left; margin-right: 15px; }
+        .boss-photo-large { width: 120px; border: 2px solid #3d2b1f; }
         
-        /* ШКАЛА ХП */
+        /* КРАСНЫЙ КРЕСТ НА ФОТО */
+        .cross-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; pointer-events: none;
+        }
+        .cross-overlay::before, .cross-overlay::after {
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 5px;
+            background: red; transform: rotate(45deg);
+        }
+        .cross-overlay::after { transform: rotate(-45deg); }
+
+        /* АРЕНА БОЯ */
+        #battle-arena { background: #000; z-index: 2000; overflow-y: auto; display: none; flex-direction: column; align-items: center; padding-top: 20px; }
         .hp-container { width: 80%; height: 20px; background: #222; border: 2px solid #fff; border-radius: 10px; margin: 10px 0; position: relative; overflow: hidden; }
         #hp-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0000, #990000); transition: width 0.3s; }
         #hp-txt { position: absolute; width: 100%; text-align: center; top: 0; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
-
         #boss-img-war { width: 220px; height: auto; border: 2px solid #444; }
 
-        /* ПАНЕЛЬ УДАРОВ ПОД ФОТО */
-        .attack-panel-inline { display: flex; gap: 10px; margin: 15px 0; }
-        .skill-btn { width: 65px; height: 65px; border: 2px solid #f1c40f; border-radius: 10px; background: #000; position: relative; overflow: hidden; }
+        /* УДАРЫ */
+        .attack-panel-inline { display: flex; gap: 8px; margin: 15px 0; }
+        .skill-btn { width: 60px; height: 60px; border: 2px solid #f1c40f; border-radius: 10px; background: #000; position: relative; overflow: hidden; }
         .skill-btn img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
-        .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; }
+        .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; }
 
-        /* ЛИДЕРЫ ПО УРОНУ */
+        /* ЛИДЕРЫ */
         .damage-leaders { width: 90%; background: rgba(40,40,40,0.8); border: 1px solid #444; border-radius: 5px; padding: 10px; margin-top: 10px; }
         .leader-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #333; padding: 3px 0; }
         .leader-name { color: #f1c40f; }
         .leader-dmg { color: #ff4d4d; font-weight: bold; }
 
-        /* КОРЕША */
-        .bottom-friends { position: absolute; bottom: 0; left: 0; width: 100%; height: 85px; background: #111; border-top: 2px solid #f1c40f; display: flex; align-items: center; padding: 0 10px; gap: 8px; overflow-x: auto; z-index: 50; }
-        .friend-card { min-width: 60px; height: 75px; border: 1px solid #f1c40f; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
         @keyframes shake { 0% { transform: translate(1px, 1px); } 20% { transform: translate(-3px, 0px); } 100% { transform: translate(0, 0); } }
         .shake-effect { animation: shake 0.2s; }
         .hit-flash { filter: brightness(0.5) sepia(1) saturate(10000%) !important; }
@@ -96,62 +100,56 @@
         </div>
     </div>
 
-    <div id="win-bosses" class="window">
+    <div id="win-bosses" class="window" style="background: rgba(0,0,0,0.9); justify-content: center;">
         <div class="folder-case">
             <h2 style="margin-top:0; border-bottom: 2px solid #3d2b1f; font-size: 18px;">ЛИЧНОЕ ДЕЛО №001</h2>
-            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" class="boss-photo-large">
+            <div class="boss-photo-container">
+                <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" class="boss-photo-large">
+                <div class="cross-overlay" id="boss-cross"></div>
+            </div>
             <div style="font-family: 'Courier New', monospace; font-size: 13px;">
                 <b>ОБЪЕКТ:</b> Ефрейтор Боков<br>
                 <b>СЛОЖНОСТЬ:</b> <span style="color:#27ae60">ЛЕГКАЯ</span><br>
                 <b>ОСОБЕННОСТИ:</b> Хитер, крадет сигареты.
             </div>
             <div style="clear:both; padding-top: 20px;">
-                <button onclick="startBattle()" style="background:#3d2b1f; color:#e3d5b8; border:none; padding:12px; font-weight:bold; width:100%;">ВСТУПИТЬ В БОЙ</button>
+                <button id="start-battle-btn" onclick="startBattle()" style="background:#3d2b1f; color:#e3d5b8; border:none; padding:12px; font-weight:bold; width:100%;">ВСТУПИТЬ В БОЙ</button>
             </div>
         </div>
         <button onclick="closeWins()" style="margin-top:20px; color:white; border:1px solid white; background:none; padding:5px 15px;">ЗАКРЫТЬ</button>
     </div>
 
+    <div id="win-victory" class="window" style="background: rgba(0,0,0,0.95); justify-content: center;">
+        <div class="folder-case" style="text-align: center;">
+            <h2 style="color: #c0392b; border-bottom: 2px solid #3d2b1f;">ДЕЛО ЗАКРЫТО</h2>
+            <div style="display: inline-block; position: relative; margin-bottom: 15px;">
+                <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" style="width: 150px; border: 3px solid #3d2b1f;">
+                <div class="cross-overlay" style="display: block;"></div>
+            </div>
+            <div style="font-family: 'Courier New', monospace; font-weight: bold; margin-bottom: 20px;">
+                Поздравляю! Ты одержал победу над Бокичом!<br><br>
+                <span style="color: #27ae60;">+500 авторитета</span><br>
+                <span style="color: #f1c40f;">+5 рублей награда</span>
+            </div>
+            <button onclick="closeVictory()" style="background:#3d2b1f; color:#e3d5b8; border:none; padding:15px; font-weight:bold; width:100%;">ПРИНЯТЬ</button>
+        </div>
+    </div>
+
     <div id="battle-arena" class="window">
         <button onclick="exitBattle()" style="position:absolute; top:10px; right:10px; background:red; color:white; border:none; padding:8px; z-index:100;">X</button>
-        
         <div style="font-weight:bold; margin-top:10px;">ЕФРЕЙТОР БОКОВ</div>
-        
         <div class="hp-container">
             <div id="hp-fill"></div>
             <div id="hp-txt">1000 / 1000</div>
         </div>
-
         <img id="boss-img-war" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
-
         <div class="attack-panel-inline">
-            <div class="skill-btn" onclick="handleAttack(0, 'в голову')">
-                <img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true">
-                <div class="cooldown-overlay" id="cd-0"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
-            </div>
-            <div class="skill-btn" onclick="handleAttack(1, 'под зад')">
-                <img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true">
-                <div class="cooldown-overlay" id="cd-1"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
-            </div>
-            <div class="skill-btn" onclick="handleAttack(2, 'в глаза')">
-                <img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true">
-                <div class="cooldown-overlay" id="cd-2"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div>
-            </div>
+            <div class="skill-btn" onclick="handleAttack(0, 'в голову')"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"><div class="cooldown-overlay" id="cd-0"><span>02:00:00</span></div></div>
+            <div class="skill-btn" onclick="handleAttack(1, 'под зад')"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"><div class="cooldown-overlay" id="cd-1"><span>02:00:00</span></div></div>
+            <div class="skill-btn" onclick="handleAttack(2, 'в глаза')"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"><div class="cooldown-overlay" id="cd-2"><span>02:00:00</span></div></div>
+            <div class="skill-btn" onclick="handleAttack(3, 'в грудь')"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"><div class="cooldown-overlay" id="cd-3"><span>02:00:00</span></div></div>
         </div>
-
-        <div class="damage-leaders">
-            <div style="font-size:11px; color:#888; margin-bottom:5px;">ЛИДЕРЫ ПО УРОНУ:</div>
-            <div class="leader-row"><span class="leader-name">1. Малой</span><span class="leader-dmg">45,200</span></div>
-            <div class="leader-row"><span class="leader-name">2. Танкист</span><span class="leader-dmg">38,150</span></div>
-            <div class="leader-row"><span class="leader-name">3. Кама</span><span class="leader-dmg">32,900</span></div>
-        </div>
-    </div>
-
-    <div class="bottom-friends">
-        <div class="friend-card" onclick="inviteFriend()" style="background:rgba(255,0,0,0.1); border:2px dashed red;">
-            <img src="https://img.icons8.com/color/96/marching-soldiers.png" width="35">
-            <div style="font-size:7px; color:red; font-weight:bold;">ЗАЛОЖИТЬ</div>
-        </div>
+        <div class="damage-leaders" id="leaders-list"></div>
     </div>
 
     <script>
@@ -161,6 +159,7 @@
         let nick = localStorage.getItem('playerNick') || "Боец";
         let cooldowns = JSON.parse(localStorage.getItem('cd_times')) || [0, 0, 0, 0];
         let bossHP = 1000;
+        let myTotalDmg = parseInt(localStorage.getItem('myTotalDmg')) || 0;
 
         function updateUI() {
             document.getElementById('score-top').innerText = score;
@@ -168,38 +167,42 @@
             document.getElementById('nick-top').innerText = nick;
             document.getElementById('hp-txt').innerText = bossHP + " / 1000";
             document.getElementById('hp-fill').style.width = (bossHP / 10) + "%";
+            updateLeaders();
+        }
+
+        function updateLeaders() {
+            const list = document.getElementById('leaders-list');
+            list.innerHTML = `<div style="font-size:11px; color:#888; margin-bottom:5px;">ЛИДЕРЫ ПО УРОНУ:</div>
+                <div class="leader-row"><span class="leader-name">1. ${nick} (Вы)</span><span class="leader-dmg">${myTotalDmg.toLocaleString()}</span></div>
+                <div class="leader-row"><span class="leader-name">2. Малой</span><span class="leader-dmg">45,200</span></div>`;
         }
 
         function handleAttack(idx, name) {
             let now = Date.now();
-            if (now < cooldowns[idx]) {
-                if (money >= 3 && confirm("Сбросить кулдаун за 3 рубля?")) {
-                    money -= 3; cooldowns[idx] = 0; save(); updateUI();
-                }
-                return;
-            }
-            bossHP -= [40, 30, 25][idx];
+            if (now < cooldowns[idx]) return;
+            
+            let dmg = [40, 30, 25, 50][idx];
+            bossHP = Math.max(0, bossHP - dmg);
+            myTotalDmg += dmg;
             cooldowns[idx] = now + (2 * 60 * 60 * 1000);
             
-            let arena = document.getElementById('battle-arena');
             let bossImg = document.getElementById('boss-img-war');
-            arena.classList.add('shake-effect');
+            document.getElementById('battle-arena').classList.add('shake-effect');
             bossImg.classList.add('hit-flash');
-            setTimeout(() => { arena.classList.remove('shake-effect'); bossImg.classList.remove('hit-flash'); }, 200);
+            setTimeout(() => { document.getElementById('battle-arena').classList.remove('shake-effect'); bossImg.classList.remove('hit-flash'); }, 200);
 
-            if (bossHP <= 0) { tg.showAlert("Победа!"); score += 1000; bossHP = 1000; exitBattle(); }
+            if (bossHP <= 0) {
+                // ЛОГИКА ПОБЕДЫ
+                score += 500;
+                money += 5;
+                bossHP = 1000;
+                save();
+                updateUI();
+                exitBattle();
+                showWin('victory');
+            }
             save(); updateUI();
             tg.HapticFeedback.impactOccurred('heavy');
-        }
-
-        function inviteFriend() {
-            tg.openTelegramLink(`https://t.me/share/url?url=https://t.me/YOUR_BOT&text=Служи со мной!`);
-            score += 500; save(); updateUI();
-        }
-
-        function changeNickname() {
-            let n = prompt("Новый позывной:", nick);
-            if(n) { nick = n; save(); updateUI(); }
         }
 
         function save() {
@@ -207,16 +210,19 @@
             localStorage.setItem('money', money);
             localStorage.setItem('playerNick', nick);
             localStorage.setItem('cd_times', JSON.stringify(cooldowns));
+            localStorage.setItem('myTotalDmg', myTotalDmg);
         }
 
         function showWin(id) { document.getElementById('win-' + id).style.display = 'flex'; }
         function closeWins() { document.querySelectorAll('.window').forEach(w => w.style.display = 'none'); }
+        function closeVictory() { closeWins(); }
         function startBattle() { closeWins(); document.getElementById('battle-arena').style.display = 'flex'; updateUI(); }
         function exitBattle() { document.getElementById('battle-arena').style.display = 'none'; }
+        function changeNickname() { let n = prompt("Новый позывной:", nick); if(n) { nick = n; save(); updateUI(); } }
 
         setInterval(() => {
             let now = Date.now();
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 4; i++) {
                 let ov = document.getElementById('cd-' + i);
                 if (ov && now < cooldowns[i]) {
                     ov.style.display = 'flex';
