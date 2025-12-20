@@ -48,7 +48,6 @@
         .boss-photo-container { position: relative; width: 120px; float: left; margin-right: 15px; }
         .boss-photo-large { width: 120px; border: 2px solid #3d2b1f; }
         
-        /* КРАСНЫЙ КРЕСТ НА ФОТО */
         .cross-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: none; pointer-events: none;
@@ -70,7 +69,7 @@
         .attack-panel-inline { display: flex; gap: 8px; margin: 15px 0; }
         .skill-btn { width: 60px; height: 60px; border: 2px solid #f1c40f; border-radius: 10px; background: #000; position: relative; overflow: hidden; }
         .skill-btn img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
-        .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; }
+        .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; }
 
         /* ЛИДЕРЫ */
         .damage-leaders { width: 90%; background: rgba(40,40,40,0.8); border: 1px solid #444; border-radius: 5px; padding: 10px; margin-top: 10px; }
@@ -144,10 +143,10 @@
         </div>
         <img id="boss-img-war" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
         <div class="attack-panel-inline">
-            <div class="skill-btn" onclick="handleAttack(0, 'в голову')"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"><div class="cooldown-overlay" id="cd-0"><span>02:00:00</span></div></div>
-            <div class="skill-btn" onclick="handleAttack(1, 'под зад')"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"><div class="cooldown-overlay" id="cd-1"><span>02:00:00</span></div></div>
-            <div class="skill-btn" onclick="handleAttack(2, 'в глаза')"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"><div class="cooldown-overlay" id="cd-2"><span>02:00:00</span></div></div>
-            <div class="skill-btn" onclick="handleAttack(3, 'в грудь')"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"><div class="cooldown-overlay" id="cd-3"><span>02:00:00</span></div></div>
+            <div class="skill-btn" onclick="handleAttack(0, 'в голову')"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"><div class="cooldown-overlay" id="cd-0"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div></div>
+            <div class="skill-btn" onclick="handleAttack(1, 'под зад')"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"><div class="cooldown-overlay" id="cd-1"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div></div>
+            <div class="skill-btn" onclick="handleAttack(2, 'в глаза')"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"><div class="cooldown-overlay" id="cd-2"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div></div>
+            <div class="skill-btn" onclick="handleAttack(3, 'в грудь')"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"><div class="cooldown-overlay" id="cd-3"><span>02:00:00</span><div style="color:#f1c40f">3 руб.</div></div></div>
         </div>
         <div class="damage-leaders" id="leaders-list"></div>
     </div>
@@ -174,12 +173,22 @@
             const list = document.getElementById('leaders-list');
             list.innerHTML = `<div style="font-size:11px; color:#888; margin-bottom:5px;">ЛИДЕРЫ ПО УРОНУ:</div>
                 <div class="leader-row"><span class="leader-name">1. ${nick} (Вы)</span><span class="leader-dmg">${myTotalDmg.toLocaleString()}</span></div>
-                <div class="leader-row"><span class="leader-name">2. Малой</span><span class="leader-dmg">45,200</span></div>`;
+                <div class="leader-row"><span class="leader-name">2. Танкист</span><span class="leader-dmg">38,150</span></div>
+                <div class="leader-row"><span class="leader-name">3. Кама</span><span class="leader-dmg">32,900</span></div>`;
         }
 
         function handleAttack(idx, name) {
             let now = Date.now();
-            if (now < cooldowns[idx]) return;
+            if (now < cooldowns[idx]) {
+                // БЫСТРЫЙ СБРОС ЗА 3 МОНЕТЫ
+                if (money >= 3) {
+                    money -= 3;
+                    cooldowns[idx] = 0;
+                    save();
+                    updateUI();
+                }
+                return;
+            }
             
             let dmg = [40, 30, 25, 50][idx];
             bossHP = Math.max(0, bossHP - dmg);
@@ -192,7 +201,6 @@
             setTimeout(() => { document.getElementById('battle-arena').classList.remove('shake-effect'); bossImg.classList.remove('hit-flash'); }, 200);
 
             if (bossHP <= 0) {
-                // ЛОГИКА ПОБЕДЫ
                 score += 500;
                 money += 5;
                 bossHP = 1000;
