@@ -10,7 +10,6 @@
             font-family: 'Arial Narrow', sans-serif; margin: 0; overflow: hidden; user-select: none;
         }
 
-        /* ШАПКА */
         .header-panel {
             display: flex; background: linear-gradient(to bottom, #5d4a37, #2a1f14);
             border-bottom: 2px solid #f1c40f; padding: 4px; height: 50px;
@@ -25,69 +24,49 @@
             padding: 2px 6px; display: flex; align-items: center; gap: 4px;
         }
 
-        /* ГЛАВНЫЙ ЭКРАН */
         #main-view { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; 
         }
         #char-img { width: 320px; height: auto; filter: drop-shadow(0 0 15px #000); }
         
-        /* КНОПКА БОНУС */
-        .bonus-btn {
-            margin-top: 10px; padding: 8px 15px; background: #27ae60; color: white;
-            border: 2px solid #fff; border-radius: 5px; font-weight: bold; cursor: pointer;
+        .bonus-btn { margin-top: 10px; padding: 8px 15px; background: #27ae60; color: white; border: 2px solid #fff; border-radius: 5px; font-weight: bold; }
+        .action-buttons { display: flex; gap: 20px; margin-top: 15px; }
+        .circle-btn { width: 75px; height: 75px; background: rgba(0,0,0,0.8); border: 2px solid #f1c40f; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .circle-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+        .window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; background: rgba(0,0,0,0.9); }
+
+        /* ЧИПОК */
+        .chipok-bg {
+            width: 100%; height: 100%; background: url('https://github.com/Kama-116/army-online/blob/main/chipok.jpg?raw=true') center/cover;
+            display: flex; flex-direction: column; align-items: center;
         }
-        .bonus-btn:disabled { background: #555; opacity: 0.6; }
-
-        .boss-trigger-btn {
-            margin-top: 15px; width: 75px; height: 75px; background: rgba(0,0,0,0.8);
-            border: 2px solid #f1c40f; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        .shop-container {
+            width: 90%; background: rgba(0,0,0,0.7); border: 2px solid #f1c40f; border-radius: 10px; margin-top: 50px; padding: 10px; overflow-y: auto; max-height: 70vh;
         }
-        .boss-trigger-btn img { width: 50px; height: 50px; mix-blend-mode: screen; }
+        .shop-item { display: flex; align-items: center; background: rgba(255,255,255,0.1); margin-bottom: 8px; padding: 8px; border-radius: 5px; }
+        .shop-item img { width: 45px; height: 45px; border-radius: 5px; margin-right: 10px; }
+        .shop-info { flex-grow: 1; text-align: left; }
+        .shop-name { color: #f1c40f; font-weight: bold; font-size: 14px; }
+        .shop-price { color: #2ecc71; font-weight: bold; }
+        .buy-btn { background: #e67e22; border: none; color: white; padding: 5px 10px; border-radius: 3px; font-weight: bold; }
 
-        /* ОКНА */
-        .window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; }
-
-        /* ЛИЧНОЕ ДЕЛО */
-        .folder-case {
-            background: #e3d5b8; border: 3px solid #3d2b1f; border-left: 15px solid #3d2b1f;
-            padding: 20px; width: 85%; color: #3d2b1f; text-align: left; position: relative;
-        }
-        .boss-photo-large { width: 120px; border: 2px solid #3d2b1f; float: left; margin-right: 15px; }
-
-        /* АРЕНА БОЯ */
-        #battle-arena { background: #000; z-index: 2000; overflow-y: auto; display: none; flex-direction: column; align-items: center; padding-top: 20px; }
-        .hp-container { width: 80%; height: 20px; background: #222; border: 2px solid #fff; border-radius: 10px; margin: 10px 0; position: relative; overflow: hidden; }
+        /* БОЙ */
+        #battle-arena { background: #000; z-index: 2000; padding-top: 20px; display: none; }
+        .hp-container { width: 85%; height: 20px; background: #222; border: 2px solid #fff; border-radius: 10px; position: relative; overflow: hidden; margin-bottom: 10px; }
         #hp-fill { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0000, #990000); transition: width 0.3s; }
         #hp-txt { position: absolute; width: 100%; text-align: center; top: 0; font-size: 14px; font-weight: bold; text-shadow: 1px 1px 2px #000; }
+        #boss-img-war { width: 200px; height: auto; border: 2px solid #444; }
+        .attack-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; width: 90%; }
+        .skill-btn { width: 100%; aspect-ratio: 1/1; border: 2px solid #f1c40f; border-radius: 8px; background: #000; position: relative; overflow: hidden; }
+        .skill-btn img { width: 100%; height: 100%; object-fit: contain; }
+        .skill-btn.locked { opacity: 0.3; filter: grayscale(1); border-color: #555; }
+        .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; }
+        .dmg-popup { position: absolute; color: yellow; font-size: 30px; font-weight: bold; animation: flyUp 0.6s forwards; z-index: 3000; pointer-events: none; }
         
-        /* КОММЕНТАРИЙ БОССА */
-        #boss-bubble {
-            background: white; color: black; padding: 5px 10px; border-radius: 10px;
-            font-size: 12px; font-weight: bold; margin-bottom: 5px; opacity: 0; transition: 0.3s;
-            position: relative; border: 2px solid #333;
-        }
-
-        #boss-img-war { width: 220px; height: auto; border: 2px solid #444; }
-
-        /* ТЕКСТ УРОНА */
-        .dmg-popup {
-            position: absolute; color: yellow; font-size: 30px; font-weight: bold;
-            pointer-events: none; animation: flyUp 0.6s forwards; z-index: 3000;
-        }
-
         @keyframes flyUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-100px); } }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 20% { transform: translate(-3px, 0px); } 100% { transform: translate(0, 0); } }
-        .shake-effect { animation: shake 0.2s; }
-        .hit-flash { filter: brightness(0.5) sepia(1) saturate(10000%) !important; }
-
-        .attack-panel-inline { display: flex; gap: 8px; margin: 15px 0; }
-        .skill-btn { width: 60px; height: 60px; border: 2px solid #f1c40f; border-radius: 10px; background: #000; position: relative; overflow: hidden; }
-        .skill-btn img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; }
-        .cooldown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; }
-
-        .damage-leaders { width: 90%; background: rgba(40,40,40,0.8); border: 1px solid #444; border-radius: 5px; padding: 10px; margin-top: 10px; }
-        .leader-row { display: flex; justify-content: space-between; font-size: 13px; border-bottom: 1px solid #333; padding: 3px 0; }
+        .folder-case { background: #e3d5b8; border: 3px solid #3d2b1f; border-left: 15px solid #3d2b1f; padding: 20px; width: 85%; color: #3d2b1f; text-align: left; }
     </style>
 </head>
 <body>
@@ -104,72 +83,80 @@
 
     <div id="main-view">
         <img id="char-img" src="https://github.com/Kama-116/army-online/blob/main/rank1.JPG?raw=true">
-        
         <button id="bonus-btn" class="bonus-btn" onclick="takeDailyBonus()">БОНУС 500₽</button>
-        
-        <div class="boss-trigger-btn" onclick="showWin('bosses')">
-            <img src="https://github.com/Kama-116/army-online/blob/main/boss.png?raw=true">
+        <div class="action-buttons">
+            <div class="circle-btn" onclick="showWin('bosses')"><img src="https://raw.githubusercontent.com/Kama-116/army-online/c12f5af7e85a445bf11f72ad0dae88c50234cec8/Gemini_Generated_Image_brhswubrhswubrhs.png"></div>
+            <div class="circle-btn" onclick="showWin('chipok')"><img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_s4mc2us4mc2us4mc.png?raw=true"></div>
         </div>
     </div>
 
-    <div id="win-bosses" class="window" style="background: rgba(0,0,0,0.9); justify-content: center;">
+    <div id="win-chipok" class="window">
+        <div class="chipok-bg">
+            <div class="shop-container">
+                <div class="shop-item">
+                    <img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_o8wus5o8wus5o8wu.png?raw=true">
+                    <div class="shop-info"><div class="shop-name">Кастет</div><div class="shop-price">10 руб</div></div>
+                    <button class="buy-btn" onclick="buyWeapon('knuckles', 10)">КУПИТЬ</button>
+                </div>
+                <div class="shop-item">
+                    <img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_rre4odrre4odrre4.png?raw=true">
+                    <div class="shop-info"><div class="shop-name">Сух паёк</div><div class="shop-price">30 руб</div></div>
+                    <button class="buy-btn" onclick="buyFood(30)">КУПИТЬ</button>
+                </div>
+                <div class="shop-item">
+                    <img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_928plj928plj928p.png?raw=true">
+                    <div class="shop-info"><div class="shop-name">Корсар-6</div><div class="shop-price">20 руб</div></div>
+                    <button class="buy-btn" onclick="buyWeapon('bomb', 20)">КУПИТЬ</button>
+                </div>
+                <div class="shop-item">
+                    <img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_adehc5adehc5adeh.png?raw=true">
+                    <div class="shop-info"><div class="shop-name">Штык-нож</div><div class="shop-price">30 руб</div></div>
+                    <button class="buy-btn" onclick="buyWeapon('knife', 30)">КУПИТЬ</button>
+                </div>
+            </div>
+            <button onclick="closeWins()" style="margin-top:20px; background:red; color:white; border:none; padding:10px 40px; border-radius:5px; font-weight:bold;">ВЫЙТИ</button>
+        </div>
+    </div>
+
+    <div id="win-bosses" class="window" style="justify-content:center;">
         <div class="folder-case">
-            <h2 style="margin-top:0; border-bottom: 2px solid #3d2b1f; font-size: 18px;">ЛИЧНОЕ ДЕЛО №001</h2>
-            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" class="boss-photo-large">
-            <div style="font-family: 'Courier New', monospace; font-size: 13px;">
-                <b>ОБЪЕКТ:</b> Ефрейтор Боков<br>
-                <b>СЛОЖНОСТЬ:</b> <span style="color:#27ae60">ЛЕГКАЯ</span><br>
-                <b>ОСОБЕННОСТИ:</b> Хитер, крадет сигареты.
-            </div>
-            <div style="clear:both; padding-top: 20px;">
-                <button onclick="startBattle()" style="background:#3d2b1f; color:#e3d5b8; border:none; padding:12px; font-weight:bold; width:100%;">ВСТУПИТЬ В БОЙ</button>
-            </div>
+            <h2 style="margin:0; font-size:18px;">ЛИЧНОЕ ДЕЛО №001</h2>
+            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" style="width:100px; float:left; margin:10px 10px 0 0; border:2px solid #333;">
+            <p><b>ОБЪЕКТ:</b> Боков<br><b>СЛОЖНОСТЬ:</b> ЛЕГКАЯ</p>
+            <button onclick="startBattle()" style="width:100%; background:#3d2b1f; color:#e3d5b8; border:none; padding:12px; font-weight:bold; margin-top:10px;">В БОЙ</button>
         </div>
-        <button onclick="closeWins()" style="margin-top:20px; color:white; border:1px solid white; background:none; padding:5px 15px;">ЗАКРЫТЬ</button>
-    </div>
-
-    <div id="win-victory" class="window" style="background: rgba(0,0,0,0.95); justify-content: center;">
-        <div class="folder-case" style="text-align: center;">
-            <h2 style="color: #c0392b; border-bottom: 2px solid #3d2b1f;">ДЕЛО ЗАКРЫТО</h2>
-            <img src="https://github.com/Kama-116/army-online/blob/main/bossBokov.jpg?raw=true" style="width: 150px; border: 3px solid #3d2b1f; filter: grayscale(1);">
-            <div style="font-family: 'Courier New', monospace; font-weight: bold;">
-                Победа над Бокичом!<br>+500 авторитета | +5 рублей
-            </div>
-            <button onclick="closeWins()" style="background:#3d2b1f; color:#e3d5b8; padding:15px; width:100%; border:none; font-weight:bold;">ПРИНЯТЬ</button>
-        </div>
+        <button onclick="closeWins()" style="margin-top:20px; color:white; border:none; background:none;">ЗАКРЫТЬ</button>
     </div>
 
     <div id="battle-arena" class="window">
-        <button onclick="exitBattle()" style="position:absolute; top:10px; right:10px; background:red; border:none; color:white; padding:8px;">X</button>
-        
-        <div id="boss-bubble">Ты что творишь, салага?</div>
-
-        <div class="hp-container">
-            <div id="hp-fill"></div>
-            <div id="hp-txt">1000 / 1000</div>
-        </div>
+        <button onclick="exitBattle()" style="position:absolute; top:10px; right:10px; background:red; border:none; color:white; padding:8px; border-radius:50%;">X</button>
+        <div class="hp-container"><div id="hp-fill"></div><div id="hp-txt">1000 / 1000</div></div>
         <img id="boss-img-war" src="https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true">
-
-        <div class="attack-panel-inline">
+        
+        <div class="attack-grid">
             <div class="skill-btn" onclick="handleAttack(0)"><img src="https://github.com/Kama-116/army-online/blob/main/vgolovy.jpg?raw=true"><div class="cooldown-overlay" id="cd-0"><span></span></div></div>
             <div class="skill-btn" onclick="handleAttack(1)"><img src="https://github.com/Kama-116/army-online/blob/main/vzad.jpg?raw=true"><div class="cooldown-overlay" id="cd-1"><span></span></div></div>
             <div class="skill-btn" onclick="handleAttack(2)"><img src="https://github.com/Kama-116/army-online/blob/main/vglaza.jpg?raw=true"><div class="cooldown-overlay" id="cd-2"><span></span></div></div>
             <div class="skill-btn" onclick="handleAttack(3)"><img src="https://github.com/Kama-116/army-online/blob/main/vgryd.jpg?raw=true"><div class="cooldown-overlay" id="cd-3"><span></span></div></div>
         </div>
-        <div class="damage-leaders" id="leaders-list"></div>
+
+        <div class="attack-grid" style="margin-top:10px; border-top: 1px solid #444; padding-top:10px;">
+            <div id="slot-knuckles" class="skill-btn locked" onclick="useSpecial('knuckles', 150)"><img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_o8wus5o8wus5o8wu.png?raw=true"></div>
+            <div id="slot-bomb" class="skill-btn locked" onclick="useSpecial('bomb', 200)"><img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_928plj928plj928p.png?raw=true"></div>
+            <div id="slot-knife" class="skill-btn locked" onclick="useSpecial('knife', 200)"><img src="https://github.com/Kama-116/army-online/blob/main/Gemini_Generated_Image_adehc5adehc5adeh.png?raw=true"></div>
+            <div class="skill-btn locked" style="border-style:dashed; opacity: 0.1;"></div>
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         let score = parseInt(localStorage.getItem('score')) || 0;
         let money = parseInt(localStorage.getItem('money')) || 100;
-        let nick = localStorage.getItem('playerNick') || "Боец";
+        let inventory = JSON.parse(localStorage.getItem('inv')) || { knuckles: 0, bomb: 0, knife: 0 };
         let cooldowns = JSON.parse(localStorage.getItem('cd_times')) || [0, 0, 0, 0];
         let lastBonus = localStorage.getItem('lastBonus') || 0;
         let bossHP = 1000;
-        let myTotalDmg = parseInt(localStorage.getItem('myTotalDmg')) || 0;
-
-        const bossQuotes = ["Ты что творишь, салага?", "Мимо кассы!", "Ай, больно же!", "Сам напросился!", "Щас в наряд пойдешь!"];
+        let nick = localStorage.getItem('playerNick') || "Боец";
 
         function updateUI() {
             document.getElementById('score-top').innerText = score;
@@ -178,31 +165,39 @@
             document.getElementById('hp-txt').innerText = bossHP + " / 1000";
             document.getElementById('hp-fill').style.width = (bossHP / 10) + "%";
             
-            // Фото босса на 500 HP
+            // Смена фото босса
             let bImg = document.getElementById('boss-img-war');
-            if (bossHP <= 500 && bossHP > 0) {
-                bImg.src = "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true"; 
-            } else if (bossHP > 500) {
-                bImg.src = "https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true";
-            }
+            bImg.src = bossHP <= 500 ? "https://github.com/Kama-116/army-online/blob/main/bossBokov2.jpg?raw=true" : "https://github.com/Kama-116/army-online/blob/main/bossBokov1.jpg?raw=true";
+
+            // Обновление кнопок оружия
+            document.getElementById('slot-knuckles').classList.toggle('locked', inventory.knuckles <= 0);
+            document.getElementById('slot-bomb').classList.toggle('locked', inventory.bomb <= 0);
+            document.getElementById('slot-knife').classList.toggle('locked', inventory.knife <= 0);
             
-            // Проверка кнопки бонуса
             let now = Date.now();
             document.getElementById('bonus-btn').disabled = (now - lastBonus < 86400000);
-            
-            updateLeaders();
         }
 
-        function updateLeaders() {
-            document.getElementById('leaders-list').innerHTML = `<div class="leader-row"><span>1. ${nick} (Вы)</span><span>${myTotalDmg}</span></div>`;
+        function buyWeapon(type, price) {
+            if (money >= price) {
+                money -= price; inventory[type]++;
+                save(); tg.showAlert("Предмет куплен! Используй его в бою.");
+            } else tg.showAlert("Мало денег!");
         }
 
-        function takeDailyBonus() {
-            money += 500;
-            lastBonus = Date.now();
-            localStorage.setItem('lastBonus', lastBonus);
-            save(); updateUI();
-            tg.showAlert("Вы получили бонус 500 рублей!");
+        function buyFood(price) {
+            if (money >= price) {
+                money -= price; save();
+                tg.showAlert("Скушал паёк! +50 энергии (пригодится в будущих ходах)");
+            } else tg.showAlert("Мало денег!");
+        }
+
+        function useSpecial(type, dmg) {
+            if (inventory[type] > 0) {
+                inventory[type]--;
+                applyHit(dmg);
+                save(); updateUI();
+            } else tg.showAlert("Сначала купи это в Чипке!");
         }
 
         function handleAttack(idx) {
@@ -210,52 +205,38 @@
             if (now < cooldowns[idx]) {
                 if (confirm("Сбросить кулдаун за 3 рубля?")) {
                     if (money >= 3) { money -= 3; cooldowns[idx] = 0; save(); updateUI(); }
-                }
-                return;
+                } return;
             }
-            
-            // Звук и визуальные эффекты
+            let dmg = [40, 30, 25, 50][idx];
+            cooldowns[idx] = now + (2 * 60 * 60 * 1000);
+            applyHit(dmg);
+            save(); updateUI();
+        }
+
+        function applyHit(dmg) {
             document.getElementById('hit-sound').currentTime = 0;
             document.getElementById('hit-sound').play();
-
-            let dmg = [40, 30, 25, 50][idx];
             bossHP = Math.max(0, bossHP - dmg);
-            myTotalDmg += dmg;
-            cooldowns[idx] = now + (2 * 60 * 60 * 1000);
-
-            // Вылет урона
+            
             let popup = document.createElement('div');
-            popup.className = 'dmg-popup';
-            popup.innerText = `-${dmg}`;
-            popup.style.left = (Math.random() * 40 + 30) + "%";
-            popup.style.top = "40%";
+            popup.className = 'dmg-popup'; popup.innerText = `-${dmg}`;
+            popup.style.left = "45%"; popup.style.top = "30%";
             document.getElementById('battle-arena').appendChild(popup);
             setTimeout(() => popup.remove(), 600);
 
-            // Реакция босса
-            let bubble = document.getElementById('boss-bubble');
-            bubble.innerText = bossQuotes[Math.floor(Math.random() * bossQuotes.length)];
-            bubble.style.opacity = 1;
-            setTimeout(() => bubble.style.opacity = 0, 1500);
-
-            let bossImg = document.getElementById('boss-img-war');
-            document.getElementById('battle-arena').classList.add('shake-effect');
-            bossImg.classList.add('hit-flash');
-            setTimeout(() => { document.getElementById('battle-arena').classList.remove('shake-effect'); bossImg.classList.remove('hit-flash'); }, 200);
-
             if (bossHP <= 0) {
                 score += 500; money += 5; bossHP = 1000;
-                save(); updateUI(); exitBattle(); showWin('victory');
+                exitBattle(); document.getElementById('win-bosses').style.display = 'flex';
+                tg.showAlert("ПОБЕДА!");
             }
-            save(); updateUI();
             tg.HapticFeedback.impactOccurred('heavy');
         }
 
         function save() {
             localStorage.setItem('score', score);
             localStorage.setItem('money', money);
+            localStorage.setItem('inv', JSON.stringify(inventory));
             localStorage.setItem('cd_times', JSON.stringify(cooldowns));
-            localStorage.setItem('myTotalDmg', myTotalDmg);
             localStorage.setItem('playerNick', nick);
         }
 
@@ -263,6 +244,7 @@
         function closeWins() { document.querySelectorAll('.window').forEach(w => w.style.display = 'none'); }
         function startBattle() { closeWins(); document.getElementById('battle-arena').style.display = 'flex'; updateUI(); }
         function exitBattle() { document.getElementById('battle-arena').style.display = 'none'; }
+        function takeDailyBonus() { money += 500; lastBonus = Date.now(); localStorage.setItem('lastBonus', lastBonus); save(); updateUI(); }
         function changeNickname() { let n = prompt("Ник:", nick); if(n) { nick = n; save(); updateUI(); } }
 
         setInterval(() => {
